@@ -1,0 +1,84 @@
+# Termos protegidos — nunca removidos pelo TextCleaner, mesmo sendo stop-words curtas.
+# Um termo por linha. Linhas com # são comentários.
+#
+# Regras:
+#   - single-word  → preservado como está (ex: "vpn" permanece "vpn")
+#   - multi-palavra → colapsado para token único (ex: "active directory" → "activedirectory")
+#   - com barra    → barra removida (ex: "tcp/ip" → "tcpip")
+#
+# Adicione termos relevantes para o domínio de TI do dataset.
+
+# Categorias ITIL (núcleo do modelo — nunca remover)
+incidente
+requisicao
+problema
+mudanca
+
+# Siglas de infraestrutura e rede
+vpn
+ssh
+scp
+rdp
+dns
+dhcp
+ldap
+vlan
+ip
+tcpip
+sso
+mfa
+active directory
+vm
+api
+
+# Bancos de dados
+sql
+oracle
+mysql
+postgresql
+mongodb
+nosql
+
+# Plataformas cloud
+aws
+azure
+gcp
+
+# Ferramentas de desenvolvimento e CI/CD
+git
+github
+docker
+kubernetes
+k8s
+cicd
+terraform
+jenkins
+ansible
+
+# Protocolos e padrões web
+http
+https
+json
+xml
+
+# Servidores e proxies
+apache
+nginx
+proxy
+loadbalancer
+
+# Gestão de serviço
+sla
+itil
+servicedesk
+
+# Outros termos de infraestrutura relevantes para classificação
+servidor
+firewall
+backup
+deploy
+rollback
+linux
+pipeline
+datalake
+datawarehouse

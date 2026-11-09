@@ -1,0 +1,59 @@
+{
+  "model": "tfidf+linearsvc",
+  "n_folds": 5,
+  "text_col": "descricao_limpa",
+  "f1_macro_per_fold": [
+    0.7394,
+    0.7637,
+    0.7469,
+    0.6913,
+    0.774
+  ],
+  "f1_macro_mean": 0.7431,
+  "f1_macro_std": 0.0286,
+  "oof_classification_report": {
+    "Aplicações": {
+      "precision": 0.6954022988505747,
+      "recall": 0.711764705882353,
+      "f1-score": 0.7034883720930233,
+      "support": 170.0
+    },
+    "BD": {
+      "precision": 0.8786127167630058,
+      "recall": 0.8837209302325582,
+      "f1-score": 0.881159420289855,
+      "support": 172.0
+    },
+    "Rede": {
+      "precision": 0.7206703910614525,
+      "recall": 0.7588235294117647,
+      "f1-score": 0.7392550143266475,
+      "support": 170.0
+    },
+    "Segurança": {
+      "precision": 0.7124183006535948,
+      "recall": 0.6411764705882353,
+      "f1-score": 0.6749226006191951,
+      "support": 170.0
+    },
+    "Servidor": {
+      "precision": 0.7109826589595376,
+      "recall": 0.7235294117647059,
+      "f1-score": 0.717201166180758,
+      "support": 170.0
+    },
+    "accuracy": 0.744131455399061,
+    "macro avg": {
+      "precision": 0.743617273257633,
+      "recall": 0.7438030095759234,
+      "f1-score": 0.7432053147018959,
+      "support": 852.0
+    },
+    "weighted avg": {
+      "precision": 0.7439341639700869,
+      "recall": 0.744131455399061,
+      "f1-score": 0.743529150630506,
+      "support": 852.0
+    }
+  }
+}

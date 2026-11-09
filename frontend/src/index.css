@@ -1,0 +1,144 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* V2 — Direção A "Pastel Flutuante" Valores com contraste
+     WCAG AA verificado contra os tokens shadcn. */
+  --background: #f4f2fb;
+  --foreground: #221f36;
+  --card: #ffffff;
+  --card-foreground: #221f36;
+  --popover: #ffffff;
+  --popover-foreground: #221f36;
+  --primary: #6d5ef0;
+  --primary-foreground: #ffffff;
+  --secondary: #eef0fd;
+  --secondary-foreground: #221f36;
+  --muted: #f1eefc;
+  --muted-foreground: #6b6584;
+  --accent: #ece7fb;
+  --accent-foreground: #221f36;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #e4defa;
+  --input: #e4defa;
+  --ring: #6d5ef0;
+  /* Paleta categórica validada (dataviz skill) — passos claros p/ superfície light */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+  --chart-6: #008300;
+  --chart-7: #4a3aa7;
+  --chart-8: #e34948;
+  --radius: 1.25rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #221f36;
+  --sidebar-primary: #6d5ef0;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ece7fb;
+  --sidebar-accent-foreground: #221f36;
+  --sidebar-border: #e4defa;
+  --sidebar-ring: #6d5ef0;
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: 'Geist Variable', sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-8: var(--chart-8);
+  --color-chart-7: var(--chart-7);
+  --color-chart-6: var(--chart-6);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+.dark {
+  /* V2 — Direção A em superfície escura. Extensão pro modo escuro do app,
+     mesma família de matiz (roxo/lavanda), contraste WCAG AA verificado. */
+  --background: #15131f;
+  --foreground: #efe9fb;
+  --card: #1d1a2b;
+  --card-foreground: #efe9fb;
+  --popover: #1d1a2b;
+  --popover-foreground: #efe9fb;
+  --primary: #a693ff;
+  --primary-foreground: #15131f;
+  --secondary: #241f38;
+  --secondary-foreground: #efe9fb;
+  --muted: #241f38;
+  --muted-foreground: #b0a9c9;
+  --accent: #2a2440;
+  --accent-foreground: #efe9fb;
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: #a693ff;
+  /* Paleta categórica validada (dataviz skill) — passos escuros p/ superfície dark */
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+  --chart-6: #008300;
+  --chart-7: #9085e9;
+  --chart-8: #e66767;
+  --sidebar: #1d1a2b;
+  --sidebar-foreground: #efe9fb;
+  --sidebar-primary: #a693ff;
+  --sidebar-primary-foreground: #15131f;
+  --sidebar-accent: #2a2440;
+  --sidebar-accent-foreground: #efe9fb;
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: #a693ff;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;}
+  body {
+    @apply bg-background text-foreground;}
+  html {
+    @apply font-sans;}
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    @apply cursor-pointer;}}

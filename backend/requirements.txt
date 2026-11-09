@@ -1,0 +1,41 @@
+# AutoITIL MVP-1 — dependências de produção
+# Python 3.10+
+# Instalar: pip install -r requirements.txt
+
+# ── Web framework ─────────────────────────────────────────────────────────────
+fastapi==0.115.0
+uvicorn==0.30.6
+jinja2==3.1.4
+python-multipart==0.0.9
+
+# ── Dados ────────────────────────────────────────────────────────────────────
+pandas==2.2.2
+openpyxl==3.1.5
+python-dateutil==2.9.0
+
+# ── Pré-processamento de texto ───────────────────────────────────────────────
+nltk==3.9.1
+
+# ── Machine Learning ─────────────────────────────────────────────────────────
+scikit-learn==1.5.2
+joblib==1.4.2
+
+# ── Deep Learning (BERT) ─────────────────────────────────────────────────────
+transformers==4.51.3
+torch==2.5.0
+huggingface_hub==0.36.2
+
+# ── Persistência (Postgres) ───────────────────────────────────────────────────
+sqlalchemy==2.0.36
+psycopg[binary]==3.2.3
+python-dotenv==1.0.1
+
+# ── Armazenamento (S3) ────────────────────────────────────────────────────────
+boto3==1.35.68
+
+# ── Observabilidade ────────────────────────────────────────────────────────────
+psutil==6.1.0
+
+# ── Autenticação ──────────────────────────────────────────────────────────────
+bcrypt==4.2.0
+pyjwt==2.9.0

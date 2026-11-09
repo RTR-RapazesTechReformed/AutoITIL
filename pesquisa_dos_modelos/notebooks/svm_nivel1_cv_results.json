@@ -1,0 +1,53 @@
+{
+  "model": "tfidf+linearsvc",
+  "n_folds": 5,
+  "text_col": "descricao_limpa",
+  "f1_macro_per_fold": [
+    0.879,
+    0.9012,
+    0.931,
+    0.9539,
+    0.8908
+  ],
+  "f1_macro_mean": 0.9112,
+  "f1_macro_std": 0.0274,
+  "oof_classification_report": {
+    "Incidente": {
+      "precision": 0.8978723404255319,
+      "recall": 0.8647540983606558,
+      "f1-score": 0.8810020876826722,
+      "support": 244.0
+    },
+    "Mudança": {
+      "precision": 0.934010152284264,
+      "recall": 0.9387755102040817,
+      "f1-score": 0.9363867684478372,
+      "support": 196.0
+    },
+    "Problema": {
+      "precision": 0.9282051282051282,
+      "recall": 0.9187817258883249,
+      "f1-score": 0.923469387755102,
+      "support": 197.0
+    },
+    "Requisição": {
+      "precision": 0.8844444444444445,
+      "recall": 0.9255813953488372,
+      "f1-score": 0.9045454545454545,
+      "support": 215.0
+    },
+    "accuracy": 0.9096244131455399,
+    "macro avg": {
+      "precision": 0.9111330163398422,
+      "recall": 0.9119731824504749,
+      "f1-score": 0.9113509246077665,
+      "support": 852.0
+    },
+    "weighted avg": {
+      "precision": 0.9098108060135109,
+      "recall": 0.9096244131455399,
+      "f1-score": 0.9095035893490327,
+      "support": 852.0
+    }
+  }
+}

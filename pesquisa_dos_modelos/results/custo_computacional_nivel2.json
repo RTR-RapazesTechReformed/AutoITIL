@@ -1,0 +1,79 @@
+{
+ "ambiente": "CPU x86_64, 4 nucleos, sem GPU",
+ "nivel": 2,
+ "svm": {
+  "modelo": "svm",
+  "n_tickets": 852,
+  "cpu": "x86_64",
+  "nucleos": 4,
+  "carga_s": 0.586,
+  "inferencia_unitaria": {
+   "media_ms": 0.89,
+   "mediana_ms": 0.88,
+   "p95_ms": 1.02
+  },
+  "lote_total_s": 0.014,
+  "treino_por_fold_s": {
+   "media": 0.05,
+   "dp": 0.0
+  },
+  "tamanho_disco_mb": 0.5,
+  "pico_rss_mb": 170.0
+ },
+ "bertimbau": {
+  "modelo": "bert",
+  "n_tickets": 852,
+  "cpu": "x86_64",
+  "nucleos": 4,
+  "torch_threads": 4,
+  "carga_s": 0.78,
+  "parametros_M": 108.9,
+  "inferencia_unitaria": {
+   "media_ms": 47.75,
+   "mediana_ms": 44.09,
+   "p95_ms": 76.7
+  },
+  "lote_total_s": 34.598,
+  "tamanho_disco_mb": 436.6,
+  "pico_rss_mb": 1201.0
+ },
+ "setfit": {
+  "modelo": "setfit (encoder pre-treinado + cabeca logistica)",
+  "n_tickets": 852,
+  "cpu": "x86_64",
+  "nucleos": 4,
+  "carga_s": 0.921,
+  "parametros_M": 117.7,
+  "tamanho_disco_mb": 487.7,
+  "inferencia_unitaria": {
+   "media_ms": 16.15,
+   "mediana_ms": 14.3,
+   "p95_ms": 25.47
+  },
+  "lote_total_s": 5.462,
+  "pico_rss_mb": 1323.0
+ },
+ "treino_gpu_t4": {
+  "bertimbau_nivel2_por_fold_s": [
+   137,
+   139,
+   138,
+   139,
+   112
+  ],
+  "bertimbau_nivel1_por_fold_s": [
+   92,
+   91,
+   74,
+   91,
+   91
+  ],
+  "setfit_nivel2_por_fold_s": [
+   155,
+   215,
+   249,
+   237,
+   238
+  ]
+ }
+}

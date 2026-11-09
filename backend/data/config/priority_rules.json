@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "Incidente": "P1",
+    "Problema": "P2",
+    "Requisição": "P3",
+    "Mudança": "P4"
+  },
+  "fallback": "P3"
+}

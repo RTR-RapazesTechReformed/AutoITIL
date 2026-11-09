@@ -1,0 +1,41 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-q --disable-warnings --maxfail=1"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+]
+
+ignore = [
+    "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"app/api/routes.py" = ["B008"]
+"notebooks/*.ipynb" = ["E402", "E702"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+exclude = ["tests/"]

@@ -1,0 +1,70 @@
+# Byte-compiled / Python specific
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+venv*/
+.Python
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Pytest
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# Uploaded files
+uploads/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Coverage
+htmlcov/
+.coverage
+
+# pip
+pip-wheel-metadata/
+pip-selfcheck.json
+
+# dotenv
+.env
+
+# Bytecode from C extensions
+*.so
+
+# macOS
+._*
+
+# Local Test Development
+local_testing_scripts/
+local_notes/
+
+# Pesos de modelos BERT fine-tuned (pesados demais pro git — hospedados no Hugging Face Hub)
+backend/models/bert/
+*.zip
+
