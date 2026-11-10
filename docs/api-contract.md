@@ -667,7 +667,7 @@ Agregações operacionais para o dashboard (F4-1).
     ],
     "confianca_media": { "nivel1": 0.91, "nivel2": 0.83 },
     "abaixo_do_limiar": {
-      "limiar_ativo": 0.75,
+      "limiar_ativo": 0.9,
       "total": 12
     },
     "tempo_medio_por_coluna": [

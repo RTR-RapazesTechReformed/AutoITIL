@@ -446,19 +446,19 @@ INSERT INTO status_ticket (id, codigo, descricao, ordem) VALUES
     (4, 'aguardando_revisao_humana', 'Aguardando Revisão Humana',  4),
     (5, 'concluido',                 'Concluído',                  5);
 
--- F2-1 — 0.750 calibrado empiricamente contra o BertClassifier nível 1 real
--- rodado sobre os 852 exemplos rotulados de pesquisa_dos_modelos/data/dataset.csv
--- (in-sample, não out-of-fold — os artefatos de CV salvos só têm métricas
--- agregadas, sem confiança por exemplo, então uma calibração ROC rigorosa não
--- é possível com o que já foi produzido pela pesquisa). Nesse corte:
---   confiança média em acertos = 0.908, em erros = 0.682
---   limiar 0.75 -> 11.7% dos tickets abaixo (revisão humana), captura 60.3%
---   dos erros; 0.70 captura menos (55.6%) por menos revisão (8.8%); 0.80
---   captura mais (69.8%) por mais revisão (15.6%). 0.75 foi mantido como o
---   melhor equilíbrio custo (volume de revisão humana) x benefício (erros
---   pegos) para este MVP. Ver detalhamento em docs/f2-1-calibracao-limiar.md.
+-- F2-1 — limiar de confiança do Nível 1: 0.900, recalibrado com as probabilidades
+-- do BERTimbau fora do fold (validação cruzada de 5 folds sobre os 852 exemplos de
+-- pesquisa_dos_modelos/data/dataset.csv; dados em
+-- pesquisa_dos_modelos/results/bert_nivel1_oof_probs.csv). Nesse corte, são 35
+-- erros em 852 chamados; confiança média em acertos = 0.938, em erros = 0.782:
+--   limiar 0.75 -> 4.2% dos chamados abaixo (revisão humana), captura 31.4% dos erros
+--   limiar 0.80 -> 6.6% abaixo, captura 51.4%
+--   limiar 0.90 -> 14.3% abaixo, captura 77.1%   (valor adotado)
+-- O padrão anterior (0.750) vinha de uma estimativa no treino, mais otimista.
+-- Ver detalhamento em docs/f2-1-calibracao-limiar.md.
+-- Bancos já criados com o valor antigo: UPDATE limiar_confianca SET valor = 0.900 WHERE ativo;
 INSERT INTO limiar_confianca (valor, descricao, ativo) VALUES
-    (0.750, 'Calibrado em F2-1: melhor equilíbrio revisão humana x erros capturados (BERT nível 1, 852 exemplos, in-sample)', TRUE);
+    (0.900, 'Recalibrado em F2-1 com probabilidades fora do fold (BERT nível 1, 852 exemplos): captura 77.1% dos erros revisando 14.3% dos chamados', TRUE);
 
 -- Modelos publicados (F1 macro em CV 5-fold sobre 852 tickets, ver
 -- docs/modelos/04_comparacao_geral.md). artefato_uri NULL = pendente.
@@ -700,16 +700,9 @@ COMMENT ON TABLE usuario IS
     'e sessão JWT (ver app.auth). Sem cadastro público: só um usuário '
     'is_admin=true pode criar novas contas (POST /api/admin/usuarios).';
 
--- Admin padrão — só existe pra alguém conseguir logar antes de qualquer
--- outra conta existir. Senha: TrocarNoPrimeiroLogin!23 — troque assim que
--- possível (não existe fluxo de troca de senha nesta entrega; peça pra
--- outro admin recriar sua conta, ou faça um UPDATE direto no banco).
-INSERT INTO usuario (email, senha_hash, is_admin, organizacao_id) VALUES (
-    'admin@autoitil.local',
-    '$2b$12$KRcVVBNP1nPBRrwkptGGC.UkqwTJmrbbOZ.v7c.OhUSXdif.5Ut7q',
-    true,
-    (SELECT id FROM organizacao WHERE nome = 'Organização Padrão')
-);
+-- Não há usuário semeado: o primeiro administrador é criado com
+-- `python -m scripts.create_admin` (ver README), com e-mail e senha lidos de
+-- variáveis de ambiente, para que nenhuma credencial fique no repositório.
 
 -- =============================================================================
 -- SEQUENCES DE NEGÓCIO
@@ -786,9 +779,7 @@ CREATE SEQUENCE IF NOT EXISTS ticket_codigo_seq
 -- =============================================================================
 -- ADICIONADO
 --   - usuario: contas do time com login (email+senha) e sessão JWT,
---     substituindo a API_KEY única compartilhada. Um admin
---     padrão (admin@autoitil.local) é semeado — trocar a senha assim que
---     possível.
+--     substituindo a API_KEY única compartilhada. O primeiro admin é criado com scripts/create_admin.py (sem senha no repositório).
 -- NÃO ALTERADO
 --   - Nenhuma tabela/coluna/view existente mudou nesta versão.
 -- =============================================================================

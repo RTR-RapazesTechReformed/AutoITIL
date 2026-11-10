@@ -64,7 +64,7 @@ describe('TicketCard', () => {
   })
 
   it('não sinaliza baixa confiança quando confianca_n1 está no limiar ou acima', () => {
-    renderCard(makeTicket({ confianca_n1: 0.75 }))
+    renderCard(makeTicket({ confianca_n1: 0.9 }))
 
     expect(screen.queryByText('baixa confiança')).not.toBeInTheDocument()
   })

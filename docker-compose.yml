@@ -1,11 +1,10 @@
-# WARNING: default credentials below (autoitil/autoitil) are for LOCAL DEV ONLY.
-# Override POSTGRES_USER/POSTGRES_PASSWORD/POSTGRES_DB via env vars for any shared or production environment.
+# Senhas e segredos NÃO têm valor padrão: copie .env.example para .env e preencha.
 services:
   db:
     image: postgres:16
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-autoitil}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-autoitil}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
       POSTGRES_DB: ${POSTGRES_DB:-autoitil}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
@@ -23,7 +22,7 @@ services:
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-autoitil}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-autoitil123}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?defina MINIO_ROOT_PASSWORD no .env}
     ports:
       - "${MINIO_API_PORT:-9000}:9000"
       - "${MINIO_CONSOLE_PORT:-9001}:9001"
@@ -42,7 +41,7 @@ services:
         condition: service_healthy
     entrypoint: >
       /bin/sh -c "
-      mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-autoitil} ${MINIO_ROOT_PASSWORD:-autoitil123};
+      mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-autoitil} ${MINIO_ROOT_PASSWORD:?defina MINIO_ROOT_PASSWORD no .env};
       mc mb -p local/${S3_BUCKET:-autoitil-uploads};
       exit 0;
       "
@@ -54,12 +53,12 @@ services:
         HF_TOKEN: ${HF_TOKEN}
     profiles: ["app"]
     environment:
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-autoitil}:${POSTGRES_PASSWORD:-autoitil}@db:5432/${POSTGRES_DB:-autoitil}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-autoitil}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}@db:5432/${POSTGRES_DB:-autoitil}
       AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-autoitil}
-      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-autoitil123}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?defina MINIO_ROOT_PASSWORD no .env}
       AWS_ENDPOINT_URL: http://minio:9000
       S3_BUCKET: ${S3_BUCKET:-autoitil-uploads}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-local-only-change-me}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?defina JWT_SECRET_KEY no .env}
       JWT_EXPIRATION_HOURS: ${JWT_EXPIRATION_HOURS:-168}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}

@@ -21,7 +21,7 @@ configure_logging()
 
 logger = logging.getLogger(__name__)
 
-if settings.JWT_SECRET_KEY == "dev-local-only-change-me":
+if settings.JWT_SECRET_KEY == "dev-local-only-change-me" or settings.JWT_SECRET_KEY.startswith("<"):
     # Não falha o boot (quebraria o docker-compose.yml deste repo, cujo
     # default é justamente não definir a env var em dev local) — mas um
     # segredo previsível, publicado no repositório, deixa qualquer JWT

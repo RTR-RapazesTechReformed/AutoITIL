@@ -25,7 +25,7 @@ function makeSummary(overrides: Partial<DashboardSummary> = {}): DashboardSummar
     por_area: [{ area: 'Rede', total: 5 }],
     por_prioridade: [{ prioridade: 'P1', total: 3 }],
     confianca_media: { nivel1: 0.9, nivel2: 0.8 },
-    abaixo_do_limiar: { limiar_ativo: 0.75, total: 1 },
+    abaixo_do_limiar: { limiar_ativo: 0.9, total: 1 },
     tempo_medio_por_coluna: [{ status: 'triagem', descricao: 'Triagem', media_horas: 2.5 }],
     volume_diario_por_area: [{ data: '2026-08-01', Rede: 2 }],
     volume_diario_por_prioridade: [{ data: '2026-08-01', P1: 2 }],

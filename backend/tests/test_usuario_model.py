@@ -1,18 +1,22 @@
-"""Smoke test da tabela usuario (schema v12) e do ORM Usuario — confere
-que o admin semeado existe e que o mapeamento das colunas está certo.
-Não cria linha nova (não há reset de schema entre execuções de teste)."""
+"""Smoke test da tabela usuario e do ORM Usuario — cria um admin de teste e
+confere que o mapeamento das colunas está certo. Não há usuário semeado no
+schema; o e-mail é único por execução para não colidir com o banco persistente."""
+
+import uuid
 
 from sqlalchemy import select
 
+from app.auth.service import create_user
 from app.domain.db import SessionLocal
 from app.domain.models import Usuario
 
 
-def test_admin_semeado_existe_e_e_admin_ativo():
+def test_admin_criado_e_admin_ativo():
+    email = f"admin-teste-{uuid.uuid4().hex[:8]}@exemplo.test"
     with SessionLocal() as session:
-        admin = session.scalar(
-            select(Usuario).where(Usuario.email == "admin@autoitil.local")
-        )
+        create_user(session, email, "senha-de-teste-123", is_admin=True)
+        session.commit()
+        admin = session.scalar(select(Usuario).where(Usuario.email == email))
 
     assert admin is not None
     assert admin.is_admin is True

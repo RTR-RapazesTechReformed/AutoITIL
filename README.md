@@ -10,7 +10,7 @@ Este repositório é a versão enxuta do projeto, preparada para a apresentaçã
 2. **Classificação em dois níveis:**
    - Nível 1: tipo de chamado (Incidente, Requisição, Problema ou Mudança).
    - Nível 2: área responsável (Aplicações, Banco de Dados, Rede, Segurança ou Servidor).
-3. **Geração do ticket:** o ticket recebe prioridade por regra fixa e índice de confiança. Abaixo do limiar de 0,75, ele vai para a coluna "Aguardando Revisão Humana".
+3. **Geração do ticket:** o ticket recebe prioridade por regra fixa e índice de confiança. Abaixo do limiar de 0,90, ele vai para a coluna "Aguardando Revisão Humana".
 4. **Acompanhamento:** Kanban, painel operacional e painel de modelos (qualidade e desempenho).
 
 ## Resultados dos modelos
@@ -54,6 +54,9 @@ docker-compose.yml     Postgres, MinIO e (opcional) backend e frontend
 Requisitos: Docker, Python 3.11+ e Node 20+.
 
 ```bash
+# 0. Segredos: copie o modelo e preencha os valores entre < > (openssl rand -hex 32)
+cp .env.example .env
+
 # 1. Infraestrutura (Postgres + MinIO)
 docker compose up -d
 
@@ -61,7 +64,11 @@ docker compose up -d
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
+cp .env.example .env                         # use as mesmas senhas do .env da raiz
+
+# cria o primeiro administrador (nenhuma senha fica no repositório)
+ADMIN_EMAIL=<seu-email> ADMIN_PASSWORD='<senha-com-12+-caracteres>' python -m scripts.create_admin
+
 python -m uvicorn app.main:app --reload      # http://localhost:8000
 ```
 
@@ -73,7 +80,7 @@ npm install
 npm run dev                                  # http://localhost:5173
 ```
 
-Login de demonstração (ambiente local): `admin@autoitil.local` / `TrocarNoPrimeiroLogin!23`.
+Para entrar na aplicação, use o e-mail e a senha definidos em `ADMIN_EMAIL` e `ADMIN_PASSWORD` no passo do backend.
 
 Para subir tudo em contêineres: `docker compose --profile app up --build`. O build baixa os modelos do Hugging Face (`EdsonMorro/autoitil-bert-nivel1` e `-nivel2`) e o modelo de enriquecimento `google/gemma-3-1b-it`, que exige aceitar a licença e exportar `HF_TOKEN`.
 

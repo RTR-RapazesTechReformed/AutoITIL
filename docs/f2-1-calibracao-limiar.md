@@ -1,82 +1,58 @@
 # F2-1 — Calibração do limiar de confiança
 
-Item do backlog: `F2-1 | Modelos | Calibrar limiar de confiança (D8)`.
+`limiar_confianca.valor` é o valor abaixo do qual uma classificação do Nível 1 é
+sinalizada para revisão humana (status `aguardando_revisao_humana`).
 
-## Contexto
+**Valor atual: `0.900`** (antes: `0.750`).
 
-`autoitil.limiar_confianca` guarda o valor abaixo do qual uma classificação
-automática deve ser sinalizada para revisão humana (status
-`aguardando_revisao_humana`). Desde o schema v3 esse valor era um placeholder
-(`0.750`, comentário "provisório — recalibrar em F2-1 com dados reais de CV").
+## Como foi calibrado
 
-## O que os artefatos de pesquisa já tinham
+A confiança de um chamado é a maior probabilidade softmax do BERTimbau de Nível 1.
+Para medir o limiar de forma honesta, a validação cruzada estratificada de 5 folds
+(os mesmos folds e hiperparâmetros de `pesquisa_dos_modelos/notebooks/bert_nivel1_training.ipynb`)
+foi rodada salvando a confiança de cada chamado **quando ele estava no fold de teste**,
+isto é, em um chamado que o modelo não viu no treino.
 
-`pesquisa_dos_modelos/notebooks/bert_nivel1_cv_results.json` guarda apenas
-métricas agregadas da validação cruzada 5-fold: `f1_macro_mean`,
-`f1_macro_std`, `oof_classification_report`. **Não guarda a confiança
-(probabilidade softmax) por exemplo**, então não é possível reconstruir uma
-curva ROC / precisão-recall por limiar a partir do que já foi produzido pela
-pesquisa — isso exigiria rodar novamente a validação cruzada salvando as
-probabilidades OOF, o que está fora do escopo deste item (seria uma mudança
-na pesquisa, não na aplicação).
+- Dados: `pesquisa_dos_modelos/results/bert_nivel1_oof_probs.csv` (852 linhas).
+- Resultado: 817 acertos e 35 erros (F1 macro agregado 0,9593).
+- Confiança média: **0,938** nos acertos e **0,782** nos erros (mediana 0,96 e 0,80).
+- 8 dos 35 erros tiveram confiança de 0,90 ou mais: o modelo erra com confiança alta.
 
-## O que foi feito em vez disso
-
-Para chegar a um valor defensável sem essa reformulação da pesquisa, rodei o
-`BertClassifier` de nível 1 já treinado e publicado (`app.classification.
-bert_classifier.BertClassifier`, baixado do Hugging Face Hub via
-`hub_repo_id`) contra os 852 exemplos rotulados de
-`pesquisa_dos_modelos/data/dataset.csv` e comparei a confiança (softmax do
-argmax) entre previsões corretas e incorretas.
-
-**Importante — isso é in-sample, não out-of-fold.** O modelo foi treinado
-usando esses mesmos 852 exemplos (com CV para validação, mas o modelo final
-publicado é treinado no dataset inteiro). Os números abaixo são indicativos
-da forma da distribuição de confiança do modelo, não uma medida honesta de
-erro em dados nunca vistos — o erro real em produção tende a ser mais alto
-do que os "confiança média em erros" sugerem aqui, porque em dados de treino
-o modelo tende a estar mais confiante (inclusive nos erros) do que estaria em
-dados genuinamente novos.
-
-### Resultado
-
-- 852 exemplos, 789 acertos / 63 erros
-- confiança média em acertos: **0.908**
-- confiança média em erros: **0.682** (min 0.403, max 0.952)
-
-| limiar | % tickets abaixo (revisão humana) | % dos erros capturados |
-|-------:|-----------------------------------:|------------------------:|
-| 0.50   | 2.0%  | 14.3% |
-| 0.60   | 4.7%  | 34.9% |
-| 0.70   | 8.8%  | 55.6% |
-| **0.75** | **11.7%** | **60.3%** |
-| 0.80   | 15.6% | 69.8% |
-| 0.85   | 19.7% | 79.4% |
-| 0.90   | 27.5% | 93.7% |
-| 0.95   | 56.6% | 98.4% |
+| Limiar | Chamados abaixo (revisão humana) | Erros capturados |
+|------:|----------------------------------:|-----------------:|
+| 0,50 | 0,5% | 0,0% |
+| 0,60 | 1,8% | 11,4% |
+| 0,70 | 3,1% | 28,6% |
+| 0,75 | 4,2% | 31,4% |
+| 0,80 | 6,6% | 51,4% |
+| 0,85 | 9,4% | 62,9% |
+| **0,90** | **14,3%** | **77,1%** |
+| 0,95 | 31,5% | 91,4% |
 
 ## Decisão
 
-Mantive **0.750** como valor de `limiar_confianca.valor`. É o ponto em que a
-curva já capturou a maioria dos erros claros (60.3%) sem empurrar um volume
-grande demais de tickets para revisão humana (11.7%) — subir para 0.80 ou
-0.85 aumenta a captura de erros de forma modesta (+9.5pp e +19.1pp) ao custo
-de quase dobrar o volume de revisão (15.6% e 19.7%). Como a curva real
-(out-of-fold) tende a ser mais achatada que a in-sample, um limiar mais
-conservador que 0.75 arriscaria sinalizar uma fração enorme dos tickets para
-revisão manual sem ganho proporcional — o que na prática anularia o valor da
-automação.
+O padrão passou de 0,75 para **0,90**. Com 0,75, só 31,4% dos erros iam para revisão;
+com 0,90, vão 77,1%, revisando 14,3% dos chamados. Acima disso o volume de revisão
+cresce rápido (31,5% em 0,95) sem ganho proporcional.
 
-**Isso não é uma calibração ROC rigorosa** — é uma estimativa honesta com o
-que os artefatos existentes permitem, documentada explicitamente como tal.
-Se a pesquisa vier a salvar as probabilidades OOF por fold no futuro, esse
-valor deve ser recalibrado com uma curva precisão-recall de verdade.
+Limitações: são 35 erros, então a estimativa é grosseira, e não é uma calibração formal
+por curva ROC ou precisão-recall. O valor pode ser mudado a qualquer momento, sem
+alterar código, na tabela `limiar_confianca`.
+
+## Por que a análise anterior foi descartada
+
+A versão anterior deste documento calculava o limiar rodando o modelo publicado sobre os
+mesmos 852 chamados do treino (in-sample), com 63 erros, e chegava a 0,75. Esses números
+não se reproduzem com o modelo hoje publicado no Hugging Face, que acerta 842 dos 852
+chamados no treino (10 erros). Em dados vistos no treino o modelo é mais confiante do
+que seria em chamados novos; por isso só a análise fora do fold vale como estimativa.
 
 ## Onde o valor vive
 
-- `db/autoitil_schema_v5.sql` (carregado integralmente em v6, F2-4) —
-  `INSERT INTO limiar_confianca` (comentário atualizado para refletir esta
-  calibração, valor numérico inalterado).
+- `db/schema.sql`: `INSERT INTO limiar_confianca` (valor `0.900`). Em um banco já
+  criado, use `UPDATE limiar_confianca SET valor = 0.900 WHERE ativo;`.
+- `frontend/src/lib/confidence.ts`: `CONFIDENCE_THRESHOLD`, que espelha o valor do banco
+  para sinalizar "baixa confiança" no Kanban e na tabela de ingestão.
 - `autoitil.limiar_confianca` é lido em runtime por
-  `backend/app/tickets/queries.py::dashboard_summary()` e usado para decidir
-  o status inicial do ticket em `backend/app/tickets/persistence.py`.
+  `backend/app/tickets/queries.py::dashboard_summary()` e usado para decidir o status
+  inicial do ticket em `backend/app/tickets/persistence.py`.

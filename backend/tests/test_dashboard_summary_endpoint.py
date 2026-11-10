@@ -67,13 +67,13 @@ def test_summary_has_expected_shape():
 
 
 def test_counts_tickets_below_active_threshold():
-    # limiar ativo (seed do schema) é 0.750 — confianca_n1 abaixo disso
+    # limiar ativo (seed do schema) é 0.900 — confianca_n1 abaixo disso
     # deve contar em abaixo_do_limiar.total
     _seed("9", _row("ticket com confianca baixa", c1=0.3, c2=0.2))
 
     response = client.get("/api/operations/summary")
     payload = response.json()
-    assert payload["data"]["abaixo_do_limiar"]["limiar_ativo"] == 0.75
+    assert payload["data"]["abaixo_do_limiar"]["limiar_ativo"] == 0.9
     assert payload["data"]["abaixo_do_limiar"]["total"] >= 1
 
 
