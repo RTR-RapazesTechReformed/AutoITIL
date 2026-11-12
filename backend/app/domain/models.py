@@ -5,7 +5,6 @@ from sqlalchemy import (
     CHAR,
     BigInteger,
     Boolean,
-    Date,
     DateTime,
     ForeignKey,
     Integer,
@@ -13,7 +12,6 @@ from sqlalchemy import (
     SmallInteger,
     String,
     Text,
-    UniqueConstraint,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -293,82 +291,6 @@ class Organizacao(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     nome: Mapped[str] = mapped_column(String(255), unique=True)
     ativo: Mapped[bool] = mapped_column(Boolean, default=True)
-    criado_em: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-
-
-class CustoEvento(Base):
-    __tablename__ = "custo_evento"
-
-    tipo_evento: Mapped[str] = mapped_column(String(30), primary_key=True)
-    custo_unidade_centavos: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    custo_mil_tokens_entrada_centavos: Mapped[int | None] = mapped_column(
-        Integer, nullable=True
-    )
-    custo_mil_tokens_saida_centavos: Mapped[int | None] = mapped_column(
-        Integer, nullable=True
-    )
-    atualizado_em: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-
-
-class RelatorioCusto(Base):
-    __tablename__ = "relatorio_custo"
-
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    organizacao_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("autoitil.organizacao.id")
-    )
-    periodo_inicio: Mapped[date] = mapped_column(Date)
-    periodo_fim: Mapped[date] = mapped_column(Date)
-    status: Mapped[str] = mapped_column(String(10), default="aberta")
-    total_centavos: Mapped[int] = mapped_column(Integer, default=0)
-    criado_em: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-    fechado_em: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-
-    __table_args__ = (  # type: ignore[assignment]
-        UniqueConstraint(
-            "organizacao_id", "periodo_inicio", "periodo_fim", name="uq_relatorio_custo_periodo_org"
-        ),
-        {"schema": "autoitil"},
-    )
-
-
-class RelatorioCustoItem(Base):
-    __tablename__ = "relatorio_custo_item"
-
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    relatorio_custo_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("autoitil.relatorio_custo.id")
-    )
-    tipo_evento: Mapped[str] = mapped_column(String(30))
-    quantidade_total: Mapped[int] = mapped_column(Integer)
-    custo_total_centavos: Mapped[int] = mapped_column(Integer)
-
-
-class EventoCusto(Base):
-    __tablename__ = "evento_custo"
-
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    organizacao_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("autoitil.organizacao.id")
-    )
-    tipo_evento: Mapped[str] = mapped_column(String(30))
-    quantidade: Mapped[int] = mapped_column(Integer)
-    tokens_entrada: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    tokens_saida: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    referencia_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
-    custo_unitario_centavos: Mapped[int] = mapped_column(Integer)
-    custo_centavos: Mapped[int] = mapped_column(Integer)
-    relatorio_custo_id: Mapped[int | None] = mapped_column(
-        BigInteger, ForeignKey("autoitil.relatorio_custo.id"), nullable=True
-    )
     criado_em: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

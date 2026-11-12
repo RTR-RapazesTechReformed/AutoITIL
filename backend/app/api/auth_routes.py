@@ -160,7 +160,7 @@ def atualizar_usuario(
         if usuario is None or usuario.organizacao_id != request.state.usuario["organizacao_id"]:
             # Mesma organização do usuário de outra, mesma resposta de "não
             # existe" — não vaza que o id pertence a outra organização (ver
-            # issue #17; mesmo padrão de detalhar_relatorio_custo).
+            # issue #17).
             return JSONResponse(
                 status_code=404,
                 content={

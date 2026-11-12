@@ -9,7 +9,6 @@ import Operacao from './pages/Operacao'
 import Modelos from './pages/Modelos'
 import HistoricoUploads from './pages/HistoricoUploads'
 import Usuarios from './pages/admin/Usuarios'
-import Custos from './pages/Custos'
 import ToastViewport from './components/ToastViewport'
 import { ToastProvider } from './lib/toast'
 
@@ -27,7 +26,6 @@ function App() {
               <Route path="/operacao" element={<Operacao />} />
               <Route path="/modelos" element={<Modelos />} />
               <Route path="/historico-uploads" element={<HistoricoUploads />} />
-              <Route path="/custos" element={<Custos />} />
               <Route path="/admin/usuarios" element={<Usuarios />} />
             </Route>
           </Route>

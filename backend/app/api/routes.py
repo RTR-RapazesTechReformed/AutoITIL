@@ -8,7 +8,6 @@ from fastapi import (
     APIRouter,
     File,
     Form,
-    Request,
     UploadFile,
 )
 from fastapi.responses import JSONResponse, Response
@@ -24,12 +23,6 @@ from app.config.settings import (
     MAX_ROWS,
     MAX_UPLOAD_BYTES,
     SUPPORTED_EXTENSIONS,
-)
-from app.custos.eventos import (
-    CustoNaoConfiguradoError,
-    registrar_classificacao_ticket,
-    registrar_enriquecimento_chamada,
-    registrar_ingestao_linha,
 )
 from app.domain.classification_metrics import (
     compute_throughput,
@@ -770,7 +763,7 @@ async def api_feedback_enriquecimento(ticket_id: int, payload: FeedbackEnriqueci
 
 
 @router.post("/api/tickets/{ticket_id}/enrich")
-async def api_enrich_ticket(ticket_id: int, request: Request):
+async def api_enrich_ticket(ticket_id: int):
     """F2-4 — reescreve a descrição original do ticket via LLM pequeno, sob
     demanda (nunca em lote — ver comentário em app.enrichment.enricher).
     Idempotente: se já existe uma versão em cache, devolve ela sem chamar o
@@ -841,13 +834,6 @@ async def api_enrich_ticket(ticket_id: int, request: Request):
             )
 
         result = save_enriched_description(session, ticket_id, descricao_enriquecida)
-        registrar_enriquecimento_chamada(
-            session,
-            organizacao_id=request.state.usuario["organizacao_id"],
-            tokens_entrada=_enricher.last_call_tokens_entrada,
-            tokens_saida=_enricher.last_call_tokens_saida,
-            referencia_id=ticket_id,
-        )
         session.commit()
 
         try:
@@ -979,7 +965,6 @@ def _persistir_metricas_classificacao(session, acumulador: dict) -> None:
 
 @router.post("/api/tickets/generate-from-file")
 async def generate_tickets_from_file(
-    request: Request,
     file_path: str = Form(...),
     descricao: str = Form(...),
     data: str = Form(""),
@@ -1061,21 +1046,6 @@ async def generate_tickets_from_file(
                 rows=persistence_rows,
             )
             _persistir_metricas_classificacao(session, metricas_classificacao)
-            if created:
-                organizacao_id = request.state.usuario["organizacao_id"]
-                arquivo_id = created[0]["arquivo_id"]
-                registrar_ingestao_linha(
-                    session,
-                    organizacao_id=organizacao_id,
-                    quantidade=len(created),
-                    referencia_id=arquivo_id,
-                )
-                registrar_classificacao_ticket(
-                    session,
-                    organizacao_id=organizacao_id,
-                    quantidade=len(created),
-                    referencia_id=arquivo_id,
-                )
             session.commit()
     except IngestionError as error:
         _mark_upload_failed(file_path, str(error))
@@ -1084,15 +1054,6 @@ async def generate_tickets_from_file(
             error_message=str(error),
             error_code=error.code,
         )
-    except CustoNaoConfiguradoError as error:
-        # Falha de custo nunca é um DB_ERROR genérico (400) — propaga
-        # como erro não tratado (500), igual a qualquer outra falha de
-        # app.custos (ver issue #20 / restrição global "custo nunca
-        # engole exceção"). O rollback automático da sessão já desfez os
-        # tickets junto com o evento de custo não gravado (atômico).
-        logger.exception("Falha ao gravar evento de custo na geração de tickets")
-        _mark_upload_failed(file_path, str(error))
-        raise
     except Exception as error:
         # Erro genérico de persistência não vira nunca IngestionError, então
         # sem isso a causa real ficava só em db_error.__cause__ (nunca

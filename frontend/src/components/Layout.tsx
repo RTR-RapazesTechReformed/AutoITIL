@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { BarChart3, LayoutDashboard, KanbanSquare, UploadCloud, History, Users, DollarSign, LogOut } from 'lucide-react'
+import { BarChart3, LayoutDashboard, KanbanSquare, UploadCloud, History, Users, LogOut } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
 import { useCurrentUser } from '@/components/RequireAuth'
 import { clearToken } from '@/lib/auth'
@@ -11,7 +11,6 @@ const NAV_ITEMS = [
   { to: '/operacao', label: 'Operação', icon: LayoutDashboard },
   { to: '/modelos', label: 'Modelos', icon: BarChart3 },
   { to: '/historico-uploads', label: 'Histórico', icon: History },
-  { to: '/custos', label: 'Custos', icon: DollarSign },
 ]
 
 // V2 — Direção A "Pastel Flutuante": a navegação

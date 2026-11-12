@@ -8,7 +8,6 @@ from fastapi.responses import JSONResponse
 
 from app.api.auth import JwtAuthMiddleware
 from app.api.auth_routes import router as auth_router
-from app.api.custos_routes import router as custos_router
 from app.api.request_logging import RequestIdMiddleware
 from app.api.routes import router
 from app.config import settings
@@ -100,4 +99,3 @@ async def log_unhandled_exception(request: Request, exc: Exception):
 
 app.include_router(router)
 app.include_router(auth_router)
-app.include_router(custos_router)

@@ -145,35 +145,3 @@ def test_returns_503_when_enrich_call_fails():
 
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "ENRICHMENT_UNAVAILABLE"
-
-
-def test_enrich_registra_evento_de_custo():
-    from sqlalchemy import select
-
-    from app.domain.models import EventoCusto
-
-    ticket = _seed_ticket("7", descricao="disco cheio no servidor")
-    fields = {"objetivo": "liberar espaço", "requisicoes": None, "cargo_recomendado": None}
-
-    with patch("app.api.routes._enricher") as mock_enricher:
-        mock_enricher.is_available.return_value = True
-        mock_enricher.enrich.return_value = fields
-        mock_enricher.last_call_duration_ms = 300.0
-        mock_enricher.last_call_tokens_entrada = 50
-        mock_enricher.last_call_tokens_saida = 25
-
-        response = client.post(f"/api/tickets/{ticket['id']}/enrich")
-
-    assert response.status_code == 200
-
-    with SessionLocal() as session:
-        evento = session.scalar(
-            select(EventoCusto)
-            .where(EventoCusto.tipo_evento == "enriquecimento_chamada")
-            .order_by(EventoCusto.id.desc())
-        )
-
-    assert evento is not None
-    assert evento.referencia_id == ticket["id"]
-    assert evento.tokens_entrada == 50
-    assert evento.tokens_saida == 25

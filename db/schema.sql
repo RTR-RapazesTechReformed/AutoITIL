@@ -1,13 +1,11 @@
 -- =============================================================================
--- AutoITIL — PostgreSQL — v17
+-- AutoITIL — PostgreSQL — v18
 -- =============================================================================
--- Mudança em relação à v16 (ver changelog completo no rodapé):
---   1. [RENOMEADO v17] preco_evento -> custo_evento, fatura ->
---      relatorio_custo, fatura_item -> relatorio_custo_item,
---      evento_cobravel -> evento_custo (e colunas/constraints
---      correspondentes). O recurso nunca foi cobrança real de cliente —
---      é uma dashboard interna de custo por organização. Nenhum dado
---      muda, só nomenclatura.
+-- Mudança em relação à v17 (ver changelog completo no rodapé):
+--   1. [REMOVIDO v18] custo_evento, relatorio_custo, relatorio_custo_item e
+--      evento_custo — o recurso de relatório de custo por organização foi
+--      retirado do produto (API e interface). organizacao permanece, porque
+--      usuario.organizacao_id depende dela.
 -- =============================================================================
 CREATE SCHEMA IF NOT EXISTS autoitil;
 SET search_path TO autoitil, public;
@@ -577,7 +575,7 @@ COMMENT ON TABLE feedback_enriquecimento IS
     'up e down.';
 
 -- =============================================================================
--- 11. FATURAMENTO MULTI-TENANT (v14)
+-- 11. ORGANIZAÇÕES (v14)
 -- =============================================================================
 
 CREATE TABLE organizacao (
@@ -588,97 +586,13 @@ CREATE TABLE organizacao (
     CONSTRAINT uq_organizacao_nome UNIQUE (nome)
 );
 COMMENT ON TABLE organizacao IS
-    'Cliente/tenant do AutoITIL, usado pra segmentar custo e acesso — não '
-    'implica cobrança real (ver relatorio_custo). Onboarding manual via '
-    'seed SQL — sem tela de cadastro nesta entrega. usuario.organizacao_id '
+    'Cliente/tenant do AutoITIL, usado pra segmentar o acesso. Onboarding '
+    'manual via seed SQL — sem tela de cadastro nesta entrega. usuario.organizacao_id '
     'referencia esta tabela; toda conta pertence a exatamente uma '
     'organização.';
 
-CREATE TABLE custo_evento (
-    tipo_evento                       VARCHAR(30) PRIMARY KEY,
-    custo_unidade_centavos            INTEGER NULL,
-    custo_mil_tokens_entrada_centavos INTEGER NULL,
-    custo_mil_tokens_saida_centavos   INTEGER NULL,
-    atualizado_em                     TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT ck_custo_evento_tipo CHECK (
-        tipo_evento IN ('ingestao_linha', 'classificacao_ticket', 'enriquecimento_chamada')
-    ),
-    CONSTRAINT ck_custo_evento_unidade_presente CHECK (
-        (tipo_evento IN ('ingestao_linha', 'classificacao_ticket') AND custo_unidade_centavos IS NOT NULL)
-        OR
-        (tipo_evento = 'enriquecimento_chamada' AND custo_mil_tokens_entrada_centavos IS NOT NULL
-            AND custo_mil_tokens_saida_centavos IS NOT NULL)
-    )
-);
-COMMENT ON TABLE custo_evento IS
-    'Custo vigente por tipo de evento de consumo — único e global. Mudar '
-    'um valor aqui só afeta eventos gravados DEPOIS da mudança — '
-    'evento_custo congela custo_unitario/custo no momento da escrita. '
-    'Métrica interna de gasto, não preço cobrado do cliente.';
-
-CREATE TABLE relatorio_custo (
-    id              BIGINT       GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    organizacao_id  BIGINT       NOT NULL REFERENCES organizacao(id),
-    periodo_inicio  DATE         NOT NULL,
-    periodo_fim     DATE         NOT NULL,
-    status          VARCHAR(10)  NOT NULL DEFAULT 'aberta',
-    total_centavos  INTEGER      NOT NULL DEFAULT 0,
-    criado_em       TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    fechado_em      TIMESTAMPTZ  NULL,
-    CONSTRAINT ck_relatorio_custo_status CHECK (status IN ('aberta', 'fechada')),
-    CONSTRAINT ck_relatorio_custo_periodo CHECK (periodo_fim > periodo_inicio),
-    CONSTRAINT uq_relatorio_custo_periodo_org UNIQUE (organizacao_id, periodo_inicio, periodo_fim)
-);
-COMMENT ON TABLE relatorio_custo IS
-    'Snapshot imutável de gasto por organização num período — dashboard '
-    'interna de custo, não fatura/cobrança real do cliente.';
-
-CREATE TABLE relatorio_custo_item (
-    id                   BIGINT      GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    relatorio_custo_id   BIGINT      NOT NULL REFERENCES relatorio_custo(id),
-    tipo_evento          VARCHAR(30) NOT NULL,
-    quantidade_total     INTEGER     NOT NULL,
-    custo_total_centavos INTEGER     NOT NULL,
-    CONSTRAINT uq_relatorio_custo_item_tipo UNIQUE (relatorio_custo_id, tipo_evento)
-);
-
-CREATE TABLE evento_custo (
-    id                       BIGINT       GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    organizacao_id           BIGINT       NOT NULL REFERENCES organizacao(id),
-    tipo_evento              VARCHAR(30)  NOT NULL,
-    quantidade               INTEGER      NOT NULL,
-    tokens_entrada           INTEGER      NULL,
-    tokens_saida             INTEGER      NULL,
-    referencia_id            BIGINT       NULL,
-    custo_unitario_centavos  INTEGER      NOT NULL,
-    custo_centavos           INTEGER      NOT NULL,
-    relatorio_custo_id       BIGINT       NULL REFERENCES relatorio_custo(id),
-    criado_em                TIMESTAMPTZ  NOT NULL DEFAULT now(),
-    CONSTRAINT ck_evento_custo_tipo CHECK (
-        tipo_evento IN ('ingestao_linha', 'classificacao_ticket', 'enriquecimento_chamada')
-    ),
-    CONSTRAINT ck_evento_custo_quantidade CHECK (quantidade > 0),
-    CONSTRAINT ck_evento_custo_valor CHECK (custo_centavos >= 0)
-);
-COMMENT ON TABLE evento_custo IS
-    'Ledger de eventos de custo, append-only. Sem FK pra ticket/arquivo '
-    '(referencia_id é solto, só rastreabilidade). custo_unitario_centavos '
-    'e custo_centavos são CONGELADOS no momento da escrita. Métrica '
-    'interna de gasto, não cobrança do cliente.';
-CREATE INDEX ix_evento_custo_org_periodo
-    ON evento_custo (organizacao_id, criado_em) WHERE relatorio_custo_id IS NULL;
-
 -- Seed da organização padrão
 INSERT INTO organizacao (nome) VALUES ('Organização Padrão');
-
--- Placeholder — AJUSTAR o custo real estimado por evento (decisão de
--- negócio/infra, não técnica). Zero aqui só garante que o lookup em
--- app.custos.eventos nunca levanta CustoNaoConfiguradoError.
-INSERT INTO custo_evento (tipo_evento, custo_unidade_centavos) VALUES
-    ('ingestao_linha', 0),
-    ('classificacao_ticket', 0);
-INSERT INTO custo_evento (tipo_evento, custo_mil_tokens_entrada_centavos, custo_mil_tokens_saida_centavos) VALUES
-    ('enriquecimento_chamada', 0, 0);
 
 -- =============================================================================
 -- 12. USUÁRIOS
@@ -751,6 +665,19 @@ CREATE SEQUENCE IF NOT EXISTS ticket_codigo_seq
 -- NÃO ALTERADO
 --   - Nenhum dado, coluna nova ou tipo mudou — é rename puro. O recurso
 --     nunca foi cobrança real de cliente, é dashboard interna de custo.
+-- =============================================================================
+
+-- =============================================================================
+-- CHANGELOG v17 -> v18
+-- =============================================================================
+-- REMOVIDO
+--   - custo_evento, relatorio_custo, relatorio_custo_item, evento_custo (e o
+--     índice ix_evento_custo_org_periodo) — relatório de custo retirado do
+--     produto. Em um banco já criado com a v17:
+--       DROP TABLE IF EXISTS autoitil.evento_custo, autoitil.relatorio_custo_item,
+--                            autoitil.relatorio_custo, autoitil.custo_evento;
+-- NÃO ALTERADO
+--   - organizacao e usuario.organizacao_id continuam iguais.
 -- =============================================================================
 
 -- =============================================================================
