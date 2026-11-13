@@ -230,6 +230,12 @@ resource "aws_instance" "app" {
   tags = {
     Name = "${local.name}-app"
   }
+
+  # Uma imagem nova do Ubuntu não deve recriar a instância num apply de rotina.
+  # Para atualizar: terraform apply "-replace=aws_instance.app".
+  lifecycle {
+    ignore_changes = [ami]
+  }
 }
 
 resource "aws_eip" "app" {
