@@ -456,7 +456,7 @@ INSERT INTO status_ticket (id, codigo, descricao, ordem) VALUES
 -- Ver detalhamento em docs/f2-1-calibracao-limiar.md.
 -- Bancos já criados com o valor antigo: UPDATE limiar_confianca SET valor = 0.900 WHERE ativo;
 INSERT INTO limiar_confianca (valor, descricao, ativo) VALUES
-    (0.900, 'Recalibrado em F2-1 com probabilidades fora do fold (BERT nível 1, 852 exemplos): captura 77.1% dos erros revisando 14.3% dos chamados', TRUE);
+    (0.900, 'Recalibrado em F2-1 (BERT nível 1, 852 exemplos fora do fold): captura 77.1% dos erros revisando 14.3% dos chamados', TRUE);
 
 -- Modelos publicados (F1 macro em CV 5-fold sobre 852 tickets, ver
 -- docs/modelos/04_comparacao_geral.md). artefato_uri NULL = pendente.
