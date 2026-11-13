@@ -34,7 +34,7 @@ notepad infra\.env
 | `SSH_KEY` | Caminho do `labsuser.pem` (`AWS Details` → `Download PEM`). Vazio = pasta Downloads |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Seu login no site (senha com 12 ou mais caracteres) |
 
-**2. Crie a infraestrutura.** Digite `yes` quando pedir. Leva de 8 a 10 minutos.
+**2. Crie a infraestrutura.** Digite `yes` quando pedir. Leva de 8 a 10 minutos. Isso só cria as máquinas: **o site ainda não abre** até o passo 3 terminar.
 
 ```powershell
 terraform -chdir=infra init
@@ -44,11 +44,10 @@ terraform -chdir=infra apply
 **3. Suba a aplicação.** A primeira vez leva de 15 a 30 minutos, porque baixa os modelos.
 
 ```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\infra\deploy.ps1
+powershell -ExecutionPolicy Bypass -File .\infra\deploy.ps1
 ```
 
-O Windows bloqueia scripts `.ps1` por padrão. A primeira linha libera a execução **só nesta janela do terminal**: ao fechá-la, o bloqueio volta, sem mudar nada no sistema. No Linux, macOS ou Git Bash, rode só `bash infra/deploy.sh`.
+O Windows bloqueia scripts `.ps1` por padrão. O `-ExecutionPolicy Bypass` libera a execução **só deste comando**, sem mudar nada no sistema. No Linux, macOS ou Git Bash, rode só `bash infra/deploy.sh`.
 
 No fim aparece o endereço do site (`http://<ip>`). Entre com o `ADMIN_EMAIL` e o `ADMIN_PASSWORD`; pelo site, o administrador cria as contas das outras pessoas. Se deixou a senha vazia, o deploy cria `admin@autoitil.local` com uma senha aleatória, mostrada **uma única vez** no fim do log.
 

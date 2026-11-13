@@ -1,6 +1,6 @@
-output "app_url" {
-  description = "Endereço do site (tela de login). A API fica em /api, atrás do nginx."
-  value       = "http://${aws_eip.app.public_ip}"
+output "proximo_passo" {
+  description = "Lembrete de que o apply só cria as máquinas; o site sobe no deploy."
+  value       = "Infraestrutura criada. O site ainda não está no ar: execute o deploy (deploy.ps1 ou deploy.sh), que publica a aplicação e exibe o endereço ao final."
 }
 
 output "public_ip" {
