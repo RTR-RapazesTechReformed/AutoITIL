@@ -1,0 +1,16 @@
+# Estado do Terraform: contém a senha do banco em texto claro
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+*.tfplan
+# O .terraform.lock.hcl É versionado, para todos usarem a mesma versão do provider.
+
+# Segredos: credenciais AWS, senha do banco, HF_TOKEN
+.env
+terraform.tfvars
+*.auto.tfvars
+
+# Chave SSH e pacote do deploy
+*.pem
+.deploy/

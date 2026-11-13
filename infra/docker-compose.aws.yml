@@ -1,0 +1,40 @@
+# Compose da EC2. Diferente do docker-compose.yml da raiz, NÃO sobe Postgres nem
+# MinIO: o banco é o RDS e os uploads vão para o S3 real.
+#
+# AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY e AWS_ENDPOINT_URL ficam DE PROPÓSITO
+# sem definir: sem eles o boto3 usa o instance profile da EC2.
+#
+# Quem roda é o infra/remote-deploy.sh:
+#   docker compose -f app/infra/docker-compose.aws.yml --env-file .env up -d --build --wait
+name: autoitil
+
+services:
+  backend:
+    build:
+      context: ../backend
+      args:
+        # Sem ":?" de propósito: só o build precisa do token, e os outros
+        # comandos (exec, logs) interpolam este arquivo sem ele no ambiente.
+        HF_TOKEN: ${HF_TOKEN:-}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?}
+      S3_BUCKET: ${S3_BUCKET:?}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:?}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      start_period: 240s # carregar os modelos leva alguns minutos
+      retries: 6
+
+  frontend:
+    build:
+      context: ../frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"

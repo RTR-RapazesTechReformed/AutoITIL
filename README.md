@@ -47,6 +47,7 @@ pesquisa_dos_modelos/  Dataset, notebooks de treino, resultados e benchmark
 sample/                Planilhas de exemplo para a demonstração
 docs/                  Contrato da API e calibração do limiar de confiança
 docker-compose.yml     Postgres, MinIO e (opcional) backend e frontend
+infra/                 Terraform e scripts de deploy na AWS (EC2, RDS e S3)
 ```
 
 ## Como rodar
@@ -85,6 +86,10 @@ Para entrar na aplicação, use o e-mail e a senha definidos em `ADMIN_EMAIL` e 
 Para subir tudo em contêineres: `docker compose --profile app up --build`. O build baixa os modelos do Hugging Face (`EdsonMorro/autoitil-bert-nivel1` e `-nivel2`) e o modelo de enriquecimento `google/gemma-3-1b-it`, que exige aceitar a licença e exportar `HF_TOKEN`.
 
 Para a demonstração, use as planilhas de `sample/`.
+
+## Deploy na AWS
+
+A pasta [`infra/`](infra) sobe a aplicação em uma conta AWS (EC2 com Docker, RDS PostgreSQL e S3): `terraform apply` cria a infraestrutura e `infra/deploy.ps1` (ou `deploy.sh`) publica o commit atual. O passo a passo está em [`infra/README.md`](infra/README.md).
 
 ## Testes
 

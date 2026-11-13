@@ -51,8 +51,15 @@ htmlcov/
 pip-wheel-metadata/
 pip-selfcheck.json
 
-# dotenv
+# dotenv e outros segredos: só os modelos (.env.example) vão para o git
 .env
+.env.*
+!.env.example
+*.tfvars
+!*.tfvars.example
+*.tfstate
+*.tfstate.*
+*.pem
 
 # Bytecode from C extensions
 *.so

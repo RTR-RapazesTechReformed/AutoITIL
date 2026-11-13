@@ -1,0 +1,6 @@
+# Estes arquivos rodam em Linux (EC2). Com core.autocrlf=true no Windows eles
+# virariam CRLF: o bash quebraria com "$'\r': command not found" e o Terraform
+# recriaria a EC2, porque o conteúdo do user_data.sh mudaria.
+*.sh  text eol=lf
+*.yml text eol=lf
+*.tf  text eol=lf
