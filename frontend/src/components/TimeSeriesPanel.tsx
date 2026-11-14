@@ -49,7 +49,7 @@ function TimeSeriesPanel({
   const resolvedLines = lines ?? deriveLines(data, timeKey)
 
   return (
-    <section className="rounded-lg border bg-card p-4 shadow-sm">
+    <section className="min-w-0 rounded-lg border bg-card p-4 shadow-sm">
       <h3 className="mb-3 font-medium">{title}</h3>
       {data.length === 0 ? (
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>

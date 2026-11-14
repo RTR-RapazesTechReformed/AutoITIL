@@ -50,9 +50,13 @@ function HistoricoUploads() {
       )}
 
       {!loading && !error && data && data.length > 0 && (
+        // No celular a mesma tabela é desenhada como lista de cartões (cada
+        // <tr> vira uma grade de 2 colunas: nome + status em cima, tamanho e
+        // datas embaixo) — 5 colunas lado a lado obrigariam a rolar de lado
+        // pra ler uma linha. De sm pra cima volta a ser tabela normal.
         <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
-          <table className="w-full text-sm">
-            <thead>
+          <table className="block w-full text-sm sm:table">
+            <thead className="hidden sm:table-header-group">
               <tr className="border-b text-left text-muted-foreground">
                 <th className="px-4 py-2 font-medium">Arquivo</th>
                 <th className="px-4 py-2 font-medium">Tamanho</th>
@@ -61,12 +65,19 @@ function HistoricoUploads() {
                 <th className="px-4 py-2 font-medium">Atualizado em</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="block sm:table-row-group">
               {data.map((entry) => (
-                <tr key={entry.id} className="border-b last:border-0">
-                  <td className="px-4 py-2">{entry.nome_original}</td>
-                  <td className="px-4 py-2">{formatBytes(entry.tamanho_bytes)}</td>
-                  <td className="w-px px-4 py-2">
+                <tr
+                  key={entry.id}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 border-b px-4 py-3 last:border-0 sm:table-row sm:p-0"
+                >
+                  <td className="font-medium break-words sm:px-4 sm:py-2 sm:font-normal">
+                    {entry.nome_original}
+                  </td>
+                  <td className="order-last col-span-2 text-xs text-muted-foreground sm:px-4 sm:py-2 sm:text-sm sm:text-foreground">
+                    {formatBytes(entry.tamanho_bytes)}
+                  </td>
+                  <td className="sm:w-px sm:px-4 sm:py-2">
                     <span
                       className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE_CLASSES[entry.status]}`}
                       title={entry.mensagem_erro ?? undefined}
@@ -74,8 +85,14 @@ function HistoricoUploads() {
                       {STATUS_LABELS[entry.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-2">{formatDateTime(entry.criado_em)}</td>
-                  <td className="px-4 py-2">{formatDateTime(entry.atualizado_em)}</td>
+                  <td className="col-span-2 text-xs text-muted-foreground sm:px-4 sm:py-2 sm:text-sm sm:text-foreground">
+                    <span className="sm:hidden">Enviado em </span>
+                    {formatDateTime(entry.criado_em)}
+                  </td>
+                  <td className="col-span-2 text-xs text-muted-foreground sm:px-4 sm:py-2 sm:text-sm sm:text-foreground">
+                    <span className="sm:hidden">Atualizado em </span>
+                    {formatDateTime(entry.atualizado_em)}
+                  </td>
                 </tr>
               ))}
             </tbody>

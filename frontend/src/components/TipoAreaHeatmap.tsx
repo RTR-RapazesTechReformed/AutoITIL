@@ -53,10 +53,15 @@ function TipoAreaHeatmap({
   const intensidadeVolume = (total: number) =>
     total === 0 ? 0 : Math.log1p(total) / Math.log1p(maior)
 
-  const colunas = `minmax(120px, 1.2fr) repeat(${areas.length}, minmax(72px, 1fr)) minmax(64px, 0.8fr)`
+  // Os mínimos só valem em tela estreita (de tablet pra cima as frações
+  // `fr` mandam). Com 5 áreas a grade precisa de ~27rem; onde isso não
+  // cabe (celular em pé) ela rola de lado dentro do próprio painel, com a
+  // coluna dos tipos fixa — a página em si nunca rola na horizontal.
+  const colunas = `minmax(6.5rem, 1.2fr) repeat(${areas.length}, minmax(3.5rem, 1fr)) minmax(3.25rem, 0.8fr)`
+  const colunaFixa = 'sticky left-0 z-10 bg-card'
 
   return (
-    <section className="rounded-lg border bg-card p-5 shadow-sm">
+    <section className="min-w-0 rounded-lg border bg-card p-4 shadow-sm sm:p-5">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <h2 className="font-medium">Tipo x área</h2>
@@ -76,7 +81,7 @@ function TipoAreaHeatmap({
               type="button"
               onClick={() => setMetrica(valor)}
               aria-pressed={metrica === valor}
-              className={`rounded-md border px-3 py-1.5 transition-colors ${
+              className={`rounded-md border px-3 py-1.5 transition-colors pointer-coarse:py-2.5 ${
                 metrica === valor
                   ? 'border-primary bg-primary/10 font-medium'
                   : 'text-muted-foreground hover:bg-muted'
@@ -88,134 +93,136 @@ function TipoAreaHeatmap({
         </div>
       </div>
 
-      <div
-        className="grid gap-1 text-sm"
-        style={{ gridTemplateColumns: colunas }}
-        onMouseLeave={() => setDestaque(null)}
-      >
-        <div className="px-2 pb-1 text-xs font-medium text-muted-foreground">
-          tipo \ área
-        </div>
-        {areas.map((area) => (
-          <div
-            key={area}
-            className={`truncate px-1 pb-1 text-center text-xs font-medium transition-colors ${
-              destaque?.area === area ? 'text-foreground' : 'text-muted-foreground'
-            }`}
-            title={area}
-          >
-            {area}
+      <div className="overflow-x-auto pb-1">
+        <div
+          className="grid gap-1 text-sm"
+          style={{ gridTemplateColumns: colunas }}
+          onMouseLeave={() => setDestaque(null)}
+        >
+          <div className={`px-2 pb-1 text-xs font-medium text-muted-foreground ${colunaFixa}`}>
+            tipo \ área
           </div>
-        ))}
-        <div className="px-1 pb-1 text-center text-xs font-medium text-muted-foreground">
-          Total
-        </div>
-
-        {tipos.map((tipo) => (
-          <div key={tipo} className="contents">
+          {areas.map((area) => (
             <div
-              className={`flex items-center px-2 text-sm font-medium transition-colors ${
-                destaque?.tipo === tipo ? 'text-foreground' : 'text-muted-foreground'
+              key={area}
+              className={`truncate px-1 pb-1 text-center text-xs font-medium transition-colors ${
+                destaque?.area === area ? 'text-foreground' : 'text-muted-foreground'
               }`}
+              title={area}
             >
-              {tipo}
+              {area}
             </div>
+          ))}
+          <div className="px-1 pb-1 text-center text-xs font-medium text-muted-foreground">
+            Total
+          </div>
 
-            {areas.map((area) => {
-              const dados = celula(tipo, area)
-              const total = dados?.total ?? 0
-              const confianca = dados?.confianca_media ?? null
-              const vazia = total === 0
+          {tipos.map((tipo) => (
+            <div key={tipo} className="contents">
+              <div
+                className={`flex items-center px-2 text-sm font-medium transition-colors ${colunaFixa} ${
+                  destaque?.tipo === tipo ? 'text-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                {tipo}
+              </div>
 
-              // Na visão de confiança, a cor é o próprio valor: quanto mais
-              // baixo, mais quente. Célula sem chamado não tem confiança
-              // nenhuma pra mostrar.
-              const intensidade =
-                metrica === 'volume'
-                  ? intensidadeVolume(total)
-                  : confianca === null
-                    ? 0
-                    : 1 - confianca
+              {areas.map((area) => {
+                const dados = celula(tipo, area)
+                const total = dados?.total ?? 0
+                const confianca = dados?.confianca_media ?? null
+                const vazia = total === 0
 
-              const abaixoDoLimiar =
-                metrica === 'confianca' &&
-                confianca !== null &&
-                limiar != null &&
-                confianca < limiar
+                // Na visão de confiança, a cor é o próprio valor: quanto mais
+                // baixo, mais quente. Célula sem chamado não tem confiança
+                // nenhuma pra mostrar.
+                const intensidade =
+                  metrica === 'volume'
+                    ? intensidadeVolume(total)
+                    : confianca === null
+                      ? 0
+                      : 1 - confianca
 
-              const cor = metrica === 'volume' ? 'var(--primary)' : 'var(--destructive)'
-              // Acima de ~55% de intensidade o fundo fica escuro demais para
-              // o texto padrão; aí o número vira claro.
-              const textoClaro = !vazia && intensidade > 0.55
-              const naCruz = destaque?.tipo === tipo || destaque?.area === area
+                const abaixoDoLimiar =
+                  metrica === 'confianca' &&
+                  confianca !== null &&
+                  limiar != null &&
+                  confianca < limiar
 
-              return (
-                <div
-                  key={area}
-                  onMouseEnter={() => setDestaque({ tipo, area })}
-                  className={`flex h-12 items-center justify-center rounded-md border text-base tabular-nums transition-all ${
-                    vazia
-                      ? 'border-dashed border-border/60 text-muted-foreground/40'
-                      : 'border-transparent font-medium'
-                  } ${textoClaro ? 'text-white' : ''} ${
-                    abaixoDoLimiar ? 'ring-2 ring-destructive ring-offset-1 ring-offset-card' : ''
-                  } ${naCruz && !vazia ? 'brightness-125' : ''}`}
-                  style={
-                    vazia
-                      ? undefined
-                      : {
-                          backgroundColor: `color-mix(in oklab, ${cor} ${Math.round(
-                            12 + intensidade * 58,
-                          )}%, transparent)`,
-                        }
-                  }
-                  title={
-                    vazia
-                      ? `${tipo} em ${area}: nenhum chamado`
-                      : `${tipo} em ${area}: ${total} chamado(s)` +
-                        (confianca !== null
-                          ? `, confiança média ${confianca.toFixed(3)}`
-                          : '')
-                  }
-                >
-                  {vazia
-                    ? '·'
-                    : metrica === 'volume'
-                      ? total
-                      : confianca !== null
-                        ? confianca.toFixed(2)
-                        : '—'}
-                </div>
-              )
-            })}
+                const cor = metrica === 'volume' ? 'var(--primary)' : 'var(--destructive)'
+                // Acima de ~55% de intensidade o fundo fica escuro demais para
+                // o texto padrão; aí o número vira claro.
+                const textoClaro = !vazia && intensidade > 0.55
+                const naCruz = destaque?.tipo === tipo || destaque?.area === area
 
+                return (
+                  <div
+                    key={area}
+                    onMouseEnter={() => setDestaque({ tipo, area })}
+                    className={`flex h-12 items-center justify-center rounded-md border text-base tabular-nums transition-all ${
+                      vazia
+                        ? 'border-dashed border-border/60 text-muted-foreground/40'
+                        : 'border-transparent font-medium'
+                    } ${textoClaro ? 'text-white' : ''} ${
+                      abaixoDoLimiar ? 'ring-2 ring-destructive ring-offset-1 ring-offset-card' : ''
+                    } ${naCruz && !vazia ? 'brightness-125' : ''}`}
+                    style={
+                      vazia
+                        ? undefined
+                        : {
+                            backgroundColor: `color-mix(in oklab, ${cor} ${Math.round(
+                              12 + intensidade * 58,
+                            )}%, transparent)`,
+                          }
+                    }
+                    title={
+                      vazia
+                        ? `${tipo} em ${area}: nenhum chamado`
+                        : `${tipo} em ${area}: ${total} chamado(s)` +
+                          (confianca !== null
+                            ? `, confiança média ${confianca.toFixed(3)}`
+                            : '')
+                    }
+                  >
+                    {vazia
+                      ? '·'
+                      : metrica === 'volume'
+                        ? total
+                        : confianca !== null
+                          ? confianca.toFixed(2)
+                          : '—'}
+                  </div>
+                )
+              })}
+
+              <div
+                className={`flex h-12 items-center justify-center rounded-md bg-muted/40 text-sm tabular-nums transition-colors ${
+                  destaque?.tipo === tipo ? 'text-foreground' : 'text-muted-foreground'
+                }`}
+                title={`${tipo}: ${totalPorTipo(tipo)} chamado(s) no total`}
+              >
+                {totalPorTipo(tipo)}
+              </div>
+            </div>
+          ))}
+
+          <div className={`flex items-center px-2 text-sm font-medium text-muted-foreground ${colunaFixa}`}>
+            Total
+          </div>
+          {areas.map((area) => (
             <div
-              className={`flex h-12 items-center justify-center rounded-md bg-muted/40 text-sm tabular-nums transition-colors ${
-                destaque?.tipo === tipo ? 'text-foreground' : 'text-muted-foreground'
+              key={area}
+              className={`flex h-10 items-center justify-center rounded-md bg-muted/40 text-sm tabular-nums transition-colors ${
+                destaque?.area === area ? 'text-foreground' : 'text-muted-foreground'
               }`}
-              title={`${tipo}: ${totalPorTipo(tipo)} chamado(s) no total`}
+              title={`${area}: ${totalPorArea(area)} chamado(s) no total`}
             >
-              {totalPorTipo(tipo)}
+              {totalPorArea(area)}
             </div>
+          ))}
+          <div className="flex h-10 items-center justify-center rounded-md bg-muted/60 text-sm font-medium tabular-nums">
+            {grade.total}
           </div>
-        ))}
-
-        <div className="flex items-center px-2 text-sm font-medium text-muted-foreground">
-          Total
-        </div>
-        {areas.map((area) => (
-          <div
-            key={area}
-            className={`flex h-10 items-center justify-center rounded-md bg-muted/40 text-sm tabular-nums transition-colors ${
-              destaque?.area === area ? 'text-foreground' : 'text-muted-foreground'
-            }`}
-            title={`${area}: ${totalPorArea(area)} chamado(s) no total`}
-          >
-            {totalPorArea(area)}
-          </div>
-        ))}
-        <div className="flex h-10 items-center justify-center rounded-md bg-muted/60 text-sm font-medium tabular-nums">
-          {grade.total}
         </div>
       </div>
 

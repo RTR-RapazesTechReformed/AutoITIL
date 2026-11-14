@@ -60,7 +60,7 @@ function Usuarios() {
 
       <form
         onSubmit={handleCreate}
-        className="flex flex-wrap items-end gap-3 rounded-2xl border bg-card p-4"
+        className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end"
       >
         <div className="flex flex-col gap-1">
           <label htmlFor="novo-email" className="text-sm text-muted-foreground">
@@ -72,7 +72,7 @@ function Usuarios() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded-lg border px-3 py-2 text-sm"
+            className="w-full min-w-0 rounded-lg border px-3 py-2 text-sm sm:w-auto"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -85,11 +85,16 @@ function Usuarios() {
             required
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
-            className="rounded-lg border px-3 py-2 text-sm"
+            className="w-full min-w-0 rounded-lg border px-3 py-2 text-sm sm:w-auto"
           />
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={isAdmin} onChange={(e) => setIsAdmin(e.target.checked)} />
+        <label className="flex items-center gap-2 py-1 text-sm">
+          <input
+            type="checkbox"
+            checked={isAdmin}
+            onChange={(e) => setIsAdmin(e.target.checked)}
+            className="size-4"
+          />
           Admin
         </label>
         <button
@@ -106,20 +111,25 @@ function Usuarios() {
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-muted-foreground">
-              <th className="py-2">Email</th>
-              <th className="py-2">Admin</th>
-              <th className="py-2">Ativo</th>
+              <th className="py-2 pr-3">Email</th>
+              <th className="py-2 pr-3">Admin</th>
+              <th className="py-2 pr-3">Ativo</th>
               <th className="py-2" />
             </tr>
           </thead>
           <tbody>
             {usuarios.map((u) => (
               <tr key={u.id} className="border-t">
-                <td className="py-2">{u.email}</td>
-                <td className="py-2">{u.is_admin ? 'Sim' : 'Não'}</td>
-                <td className="py-2">{u.ativo ? 'Sim' : 'Não'}</td>
-                <td className="py-2">
-                  <button onClick={() => handleToggleAtivo(u)} className="text-sm underline">
+                {/* break-all: um email comprido não quebra sozinho (não tem
+                    espaço) e empurrava a tabela pra fora da tela no celular. */}
+                <td className="py-2 pr-3 break-all">{u.email}</td>
+                <td className="py-2 pr-3">{u.is_admin ? 'Sim' : 'Não'}</td>
+                <td className="py-2 pr-3">{u.ativo ? 'Sim' : 'Não'}</td>
+                <td className="py-2 text-right whitespace-nowrap">
+                  <button
+                    onClick={() => handleToggleAtivo(u)}
+                    className="py-2 text-sm underline"
+                  >
                     {u.ativo ? 'Desativar' : 'Ativar'}
                   </button>
                 </td>

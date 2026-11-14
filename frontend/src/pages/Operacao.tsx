@@ -24,7 +24,7 @@ function BarPanel({
   nameKey: string
 }) {
   return (
-    <section className="rounded-lg border bg-card p-4 shadow-sm">
+    <section className="min-w-0 rounded-lg border bg-card p-4 shadow-sm">
       <h2 className="mb-3 font-medium">{title}</h2>
       {data.length === 0 ? (
         <p className="text-sm text-muted-foreground">Sem dados ainda.</p>
@@ -90,7 +90,9 @@ function Operacao() {
 
       {!loading && !error && data && (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* 2 colunas já no celular: quatro tiles empilhados empurravam o
+              resto do dashboard pra fora da primeira tela. */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             <StatTile
               label="Total de tickets"
               value={String(data.total_tickets)}
@@ -148,7 +150,10 @@ function Operacao() {
             )}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          {/* grid-cols-1 explícito: sem ele a coluna implícita do grid é
+              `auto` e cresce com o conteúdo (gráfico do recharts), estourando
+              a largura da tela. Três gráficos lado a lado só de md pra cima. */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <BarPanel title="Tickets por área responsável" data={data.por_area} dataKey="total" nameKey="area" />
             <BarPanel
               title="Tickets por prioridade"
@@ -164,7 +169,7 @@ function Operacao() {
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <TimeSeriesPanel
               title="Volume por área ao longo do tempo"
               data={data.volume_diario_por_area}

@@ -22,7 +22,7 @@ function ConfusionMatrixPanel({
 
   if (matriz.total_revisado === 0) {
     return (
-      <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <div className="min-w-0 rounded-lg border bg-card p-4 shadow-sm">
         <p className="mb-1 text-sm font-medium">{titulo}</p>
         <p className="text-sm text-muted-foreground">
           Nenhuma revisão registrada ainda. Corrija a classificação de um ticket
@@ -40,8 +40,8 @@ function ConfusionMatrixPanel({
     celulas.find((c) => c.predito === predito && c.real === real)?.total ?? 0
 
   return (
-    <div className="rounded-lg border bg-card p-4 shadow-sm">
-      <div className="mb-3 flex items-baseline justify-between">
+    <div className="min-w-0 rounded-lg border bg-card p-4 shadow-sm">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <p className="text-sm font-medium">{titulo}</p>
         <p className="text-xs text-muted-foreground">
           {matriz.acertos}/{matriz.total_revisado} confirmados

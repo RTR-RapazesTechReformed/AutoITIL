@@ -38,23 +38,26 @@ function GeneratedTicketsTable({ tickets }: Props) {
     <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
         <p className="text-sm font-medium">{resumoMensagem}</p>
-        <div className="relative">
+        <div className="relative w-full sm:w-auto">
           <Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <input
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar por código ou título..."
-            className="rounded-full border bg-background py-1.5 pr-3 pl-8 text-sm"
+            className="w-full rounded-full border bg-background py-2 pr-3 pl-8 text-sm sm:w-auto sm:py-1.5"
           />
         </div>
       </div>
 
-      <div className="max-h-[28rem] overflow-y-auto">
-        <table className="w-full text-sm">
+      {/* No celular as 6 colunas não cabem: a tabela mantém uma largura
+          mínima legível e rola de lado dentro do card (o cabeçalho continua
+          fixo no topo durante a rolagem vertical). */}
+      <div className="max-h-[28rem] overflow-auto">
+        <table className="w-full min-w-[44rem] text-sm sm:min-w-0">
           <thead className="sticky top-0 z-10 bg-card">
             <tr className="border-b text-left text-xs font-medium tracking-wide text-muted-foreground uppercase">
               <th className="px-4 py-2 font-medium">Código</th>
-              <th className="px-4 py-2 font-medium">Título sugerido</th>
+              <th className="px-4 py-2 font-medium whitespace-nowrap">Título sugerido</th>
               <th className="px-4 py-2 font-medium">Tipo</th>
               <th className="px-4 py-2 font-medium">Área</th>
               <th className="px-4 py-2 text-right font-medium">Confiança</th>
@@ -66,7 +69,9 @@ function GeneratedTicketsTable({ tickets }: Props) {
               const baixaConfianca = ticket.confianca_n1 < CONFIDENCE_THRESHOLD
               return (
                 <tr key={ticket.id_ticket} className="border-b last:border-0 hover:bg-muted/40">
-                  <td className="px-4 py-2 font-mono text-xs text-muted-foreground">{ticket.id_ticket}</td>
+                  <td className="px-4 py-2 font-mono text-xs whitespace-nowrap text-muted-foreground">
+                    {ticket.id_ticket}
+                  </td>
                   <td className="max-w-xs px-4 py-2 leading-snug">{ticket.titulo_sugerido}</td>
                   <td className="px-4 py-2">
                     <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">

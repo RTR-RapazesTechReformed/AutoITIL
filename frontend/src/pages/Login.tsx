@@ -97,19 +97,19 @@ function Login() {
       </div>
 
       {/* Coluna do formulário */}
-      <div className="flex flex-col justify-center bg-background px-6 py-10 sm:px-10">
+      <div className="flex flex-col justify-center bg-background px-4 py-10 sm:px-10">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-6 flex items-center justify-between md:hidden">
-            <Link to="/" className="font-semibold">
+            <Link to="/" className="py-2 font-semibold">
               AutoITIL
             </Link>
-            <ThemeToggle />
+            <ThemeToggle className="size-10" />
           </div>
           <div className="mb-6 hidden justify-end md:flex">
             <ThemeToggle />
           </div>
 
-          <div className="rounded-2xl border bg-card p-6 shadow-sm">
+          <div className="rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
             <h2 className="text-lg font-semibold">Entrar</h2>
             <p className="mt-1 mb-6 text-sm text-muted-foreground">
               Acesse sua conta para continuar
@@ -126,7 +126,7 @@ function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="rounded-lg border px-3 py-2 text-sm"
+                  className="w-full min-w-0 rounded-lg border px-3 py-2 text-sm"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -139,7 +139,7 @@ function Login() {
                   required
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  className="rounded-lg border px-3 py-2 text-sm"
+                  className="w-full min-w-0 rounded-lg border px-3 py-2 text-sm"
                 />
               </div>
               {erro && <p className="text-sm text-destructive">{erro}</p>}

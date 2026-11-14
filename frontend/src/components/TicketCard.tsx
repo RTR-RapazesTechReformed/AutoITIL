@@ -72,8 +72,12 @@ function TicketCardBody({ ticket, baixaConfianca, onExpand }: TicketCardBodyProp
               type="button"
               aria-label="Expandir card"
               onPointerDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               onClick={onExpand}
-              className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+              // before:-inset-3 — o ícone tem 18px, pequeno demais pra dedo.
+              // O pseudo-elemento estende a área clicável pra ~42px sem
+              // mexer no tamanho visual nem no layout do card.
+              className="relative rounded p-0.5 text-muted-foreground before:absolute before:-inset-3 before:content-[''] hover:bg-accent hover:text-foreground"
             >
               <ExpandIcon />
             </button>
@@ -133,7 +137,10 @@ function TicketCard({ ticket, onEnriched, onRevised, onFeedback }: Props) {
       {...listeners}
       {...attributes}
       className={cn(
-        'cursor-grab space-y-2 rounded-lg border bg-card p-3 text-card-foreground shadow-sm active:cursor-grabbing',
+        // touch-manipulation + select-none no toque: o arraste por toque é
+        // "tocar e segurar" (ver lib/dndSensors.ts), o mesmo gesto que o
+        // navegador usa pra selecionar texto e abrir o menu de contexto.
+        'cursor-grab touch-manipulation space-y-2 rounded-lg border bg-card p-3 text-card-foreground shadow-sm active:cursor-grabbing pointer-coarse:select-none pointer-coarse:[-webkit-touch-callout:none]',
         isDragging && 'opacity-30',
         baixaConfianca && 'border-destructive',
       )}

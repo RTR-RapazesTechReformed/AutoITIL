@@ -142,3 +142,16 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     @apply cursor-pointer;}}
+
+/* Responsividade — fora de @layer de propósito: regra sem camada vence as
+   utilitárias do Tailwind (text-sm nos campos), que é o que precisa
+   acontecer aqui. O Safari do iOS dá zoom na página inteira ao focar um
+   campo com fonte menor que 16px e não volta sozinho; em tela de toque os
+   campos sobem pra 16px e o zoom não acontece. */
+@media (pointer: coarse) {
+  input:not([type='checkbox'], [type='radio'], [type='file']),
+  select,
+  textarea {
+    font-size: 1rem;
+  }
+}

@@ -116,14 +116,19 @@ function Ingestao() {
 
         {step === 'mapping' && preview && !loading && (
           <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
-            <p className="text-sm">
+            {/* wrap-anywhere: nome de arquivo não tem espaço pra quebrar e
+                empurrava o card pra fora da tela no celular. */}
+            <p className="text-sm wrap-anywhere">
               <strong>{preview.filename}</strong> — {pluralizar(preview.row_count, 'linha', 'linhas')},{' '}
               {pluralizar(preview.column_count, 'coluna', 'colunas')}.
             </p>
 
             <div className="grid gap-3">
               {(['descricao', 'data', 'responsavel'] as const).map((campo) => (
-                <label key={campo} className="flex items-center justify-between gap-3 text-sm">
+                <label
+                  key={campo}
+                  className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+                >
                   <span>
                     {CAMPO_LABELS[campo]}
                     {campo === 'descricao' && <span className="text-destructive"> *</span>}
@@ -131,7 +136,9 @@ function Ingestao() {
                   <select
                     value={mapping[campo]}
                     onChange={(e) => setMapping((prev) => ({ ...prev, [campo]: e.target.value }))}
-                    className="rounded-md border bg-background px-2 py-1"
+                    // w-full/min-w-0: o <select> assume a largura da maior opção
+                    // (nome de coluna da planilha) e estourava o card no celular.
+                    className="w-full min-w-0 rounded-md border bg-background px-2 py-2 sm:w-auto sm:max-w-xs sm:py-1"
                   >
                     <option value="">— não mapear —</option>
                     {preview.columns.map((col) => (
@@ -144,16 +151,20 @@ function Ingestao() {
               ))}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={handleGenerate}
                 disabled={!mapping.descricao}
-                className="rounded-md bg-primary px-4 py-1.5 text-sm text-primary-foreground disabled:opacity-50"
+                className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-50 sm:py-1.5"
               >
                 Confirmar e gerar tickets
               </button>
-              <button type="button" onClick={reset} className="rounded-md border px-4 py-1.5 text-sm">
+              <button
+                type="button"
+                onClick={reset}
+                className="rounded-md border px-4 py-2 text-sm sm:py-1.5"
+              >
                 Cancelar
               </button>
             </div>
@@ -170,17 +181,17 @@ function Ingestao() {
       {step === 'done' && tickets && (
         <div className="space-y-3">
           <GeneratedTicketsTable tickets={tickets} />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link
               to="/kanban"
-              className="rounded-md bg-primary px-4 py-1.5 text-sm text-primary-foreground hover:opacity-90"
+              className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 sm:py-1.5"
             >
               Ir para o Kanban
             </Link>
             <button
               type="button"
               onClick={reset}
-              className="rounded-full border px-4 py-1.5 text-sm hover:bg-accent"
+              className="rounded-full border px-4 py-2 text-sm hover:bg-accent sm:py-1.5"
             >
               Enviar outro arquivo
             </button>

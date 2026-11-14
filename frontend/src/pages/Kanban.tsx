@@ -19,6 +19,8 @@ import { downloadBlob } from '@/lib/download'
 import { useToast } from '@/lib/toast'
 import { STATUS_LABELS } from '@/lib/status'
 import { useApiData } from '@/lib/useApiData'
+import { useKanbanSensors } from '@/lib/dndSensors'
+import { cn } from '@/lib/utils'
 import StateFeedback from '@/components/StateFeedback'
 import TicketCard, { TicketCardOverlay } from '@/components/TicketCard'
 
@@ -52,8 +54,12 @@ function Column({ status, label, tickets, onEnriched, onRevised, onFeedback }: C
   return (
     <div
       ref={setNodeRef}
+      // No celular cada raia ocupa ~82% da largura da tela e o board rola
+      // de lado com encaixe (uma raia por vez, a próxima aparecendo na
+      // borda pra indicar que há mais). De sm pra cima volta ao original:
+      // raias fluidas de no mínimo 16rem dividindo o espaço.
       className={
-        `flex min-w-64 flex-1 flex-col gap-2 rounded-2xl border border-transparent p-2 ${COLUMN_TINTS[status] ?? 'bg-muted/30'} ` +
+        `flex w-[82vw] shrink-0 snap-center flex-col gap-2 rounded-2xl border border-transparent p-2 sm:w-auto sm:min-w-64 sm:flex-1 ${COLUMN_TINTS[status] ?? 'bg-muted/30'} ` +
         (isOver ? 'ring-2 ring-primary' : '')
       }
     >
@@ -85,6 +91,7 @@ function Column({ status, label, tickets, onEnriched, onRevised, onFeedback }: C
 
 function Kanban() {
   const { showToast } = useToast()
+  const sensors = useKanbanSensors()
   const [area, setArea] = useState('')
   const [prioridade, setPrioridade] = useState('')
   const [busca, setBusca] = useState('')
@@ -193,20 +200,30 @@ function Kanban() {
     <div className="space-y-4">
       <div>
         <h1 className="text-xl font-semibold">Kanban</h1>
-        <p className="text-sm text-muted-foreground">Arraste os cards entre as colunas para atualizar o status.</p>
+        <p className="text-sm text-muted-foreground">
+          <span className="pointer-coarse:hidden">
+            Arraste os cards entre as colunas para atualizar o status.
+          </span>
+          <span className="hidden pointer-coarse:inline">
+            Toque e segure um card para arrastá-lo entre as colunas e atualizar o status.
+          </span>
+        </p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      {/* Filtros: no celular viram uma grade de 2 colunas (busca na linha
+          inteira, depois os dois selects, depois as duas exportações) em
+          vez de uma pilha de pílulas de larguras diferentes. */}
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
         <input
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           placeholder="Buscar por código ou título..."
-          className="rounded-full border border-border bg-card px-3.5 py-1.5 text-sm shadow-sm"
+          className="col-span-2 min-w-0 rounded-full border border-border bg-card px-3.5 py-2 text-sm shadow-sm sm:py-1.5"
         />
         <select
           value={area}
           onChange={(e) => setArea(e.target.value)}
-          className="rounded-full border border-border bg-card px-3.5 py-1.5 text-sm shadow-sm"
+          className="min-w-0 rounded-full border border-border bg-card px-3.5 py-2 text-sm shadow-sm sm:py-1.5"
         >
           <option value="">Todas as áreas</option>
           {['Aplicações', 'BD', 'Rede', 'Segurança', 'Servidor'].map((a) => (
@@ -218,7 +235,7 @@ function Kanban() {
         <select
           value={prioridade}
           onChange={(e) => setPrioridade(e.target.value)}
-          className="rounded-full border border-border bg-card px-3.5 py-1.5 text-sm shadow-sm"
+          className="min-w-0 rounded-full border border-border bg-card px-3.5 py-2 text-sm shadow-sm sm:py-1.5"
         >
           <option value="">Todas as prioridades</option>
           {['P1', 'P2', 'P3', 'P4'].map((p) => (
@@ -231,7 +248,7 @@ function Kanban() {
           type="button"
           onClick={() => handleExport('csv')}
           disabled={exporting !== null}
-          className="rounded-full border border-border bg-card px-3.5 py-1.5 text-sm shadow-sm disabled:opacity-50"
+          className="rounded-full border border-border bg-card px-3.5 py-2 text-sm shadow-sm disabled:opacity-50 sm:py-1.5"
         >
           {exporting === 'csv' ? 'Exportando...' : 'Exportar CSV'}
         </button>
@@ -239,7 +256,7 @@ function Kanban() {
           type="button"
           onClick={() => handleExport('xlsx')}
           disabled={exporting !== null}
-          className="rounded-full border border-border bg-card px-3.5 py-1.5 text-sm shadow-sm disabled:opacity-50"
+          className="rounded-full border border-border bg-card px-3.5 py-2 text-sm shadow-sm disabled:opacity-50 sm:py-1.5"
         >
           {exporting === 'xlsx' ? 'Exportando...' : 'Exportar XLSX'}
         </button>
@@ -249,11 +266,23 @@ function Kanban() {
 
       {!loading && !error && data && (
         <DndContext
+          sensors={sensors}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           onDragCancel={handleDragCancel}
         >
-          <div className="flex gap-3 overflow-x-auto pb-2">
+          {/* -mx-4/px-4: no celular o board sangra até as bordas da tela
+              (o padding do <main> volta por dentro), senão a raia parcial
+              à direita seria cortada antes da borda. O encaixe (snap) é
+              desligado durante um arraste: a rolagem automática do dnd-kit
+              anda em passos pequenos e o encaixe obrigatório puxaria o
+              board de volta a cada passo. */}
+          <div
+            className={cn(
+              '-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:snap-none sm:px-0',
+              activeTicket && 'snap-none',
+            )}
+          >
             {COLUMNS.map((column) => (
               <Column
                 key={column.status}

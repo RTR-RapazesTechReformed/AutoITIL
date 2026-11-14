@@ -75,7 +75,7 @@ function Desempenho() {
       {/* Faixa de resumo: os números que a aba existe para comunicar, antes
           dos gráficos que os detalham. Sem isso, a aba era quatro seções de
           gráficos sem hierarquia. */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatTile
           label="Custo por chamado"
           value={
@@ -140,7 +140,7 @@ function Desempenho() {
           ) : (
             <div className="overflow-x-auto rounded-lg border bg-card shadow-sm">
               <table className="w-full text-sm">
-                <thead className="border-b text-left text-muted-foreground">
+                <thead className="border-b text-left whitespace-nowrap text-muted-foreground">
                   <tr>
                     <th className="px-4 py-2 font-medium">Nível</th>
                     <th className="px-4 py-2 font-medium">Modelo</th>
@@ -187,7 +187,7 @@ function Desempenho() {
           loadingLabel="Carregando métricas de sistema..."
         />
         {!sistemaLoading && !sistemaError && sistemaHistorico && (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <TimeSeriesPanel
               title="CPU do processo (%)"
               data={sistemaHistorico}
@@ -229,7 +229,7 @@ function Desempenho() {
           !classificacaoError &&
           classificacaoHistorico &&
           classificacaoHistorico.length > 0 && (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <TimeSeriesPanel
                 title="Duração por chamado (ms)"
                 data={classificacaoHistorico}
@@ -276,7 +276,7 @@ function Desempenho() {
           </p>
         )}
         {!gemmaLoading && !gemmaError && gemmaHistorico && gemmaHistorico.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <TimeSeriesPanel
               title="Duração por chamada (ms)"
               data={gemmaHistorico}

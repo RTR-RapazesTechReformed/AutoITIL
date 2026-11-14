@@ -56,19 +56,19 @@ function Qualidade() {
       )}
 
       {!loading && !error && data && !semDados && (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {(['nivel1', 'nivel2'] as const).map((nivel) => {
             const modelos = data[nivel]
             if (!modelos || Object.keys(modelos).length === 0) return null
 
             return (
-              <section key={nivel} className="rounded-lg border bg-card p-4 shadow-sm">
+              <section key={nivel} className="min-w-0 rounded-lg border bg-card p-4 shadow-sm">
                 <h2 className="mb-3 font-medium">
                   {nivel === 'nivel1' ? 'Nível 1 — Tipo ITIL' : 'Nível 2 — Área responsável'}
                 </h2>
                 <div className="space-y-2">
                   {Object.entries(modelos).map(([key, modelo]) => (
-                    <div key={key} className="flex items-center justify-between rounded-md border px-3 py-2">
+                    <div key={key} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2">
                       <span className="text-sm">{MODEL_LABELS[key] ?? key}</span>
                       <span className="font-mono text-sm font-semibold">
                         {formatPercent(modelo.macro_f1)}
@@ -100,11 +100,11 @@ function Qualidade() {
           <p className="text-sm text-muted-foreground">Ainda não há tickets revisados.</p>
         )}
         {!acuraciaLoading && !acuraciaError && acuraciaReal && !semRevisoes && (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {(['nivel1', 'nivel2'] as const).map((nivel) => {
               const resultado = acuraciaReal[nivel]
               return (
-                <section key={nivel} className="rounded-lg border bg-card p-4 shadow-sm">
+                <section key={nivel} className="min-w-0 rounded-lg border bg-card p-4 shadow-sm">
                   <h3 className="mb-2 font-medium">
                     {nivel === 'nivel1' ? 'Nível 1 — Tipo ITIL' : 'Nível 2 — Área responsável'}
                   </h3>
@@ -135,7 +135,7 @@ function Qualidade() {
           loadingLabel="Carregando matriz de confusão..."
         />
         {!confusaoLoading && !confusaoError && confusao && (
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <ConfusionMatrixPanel
               matriz={confusao.nivel1}
               titulo="Nível 1 — Tipo ITIL"

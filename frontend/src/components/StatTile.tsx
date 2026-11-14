@@ -15,14 +15,14 @@ type StatTileProps = {
 function StatTile({ label, value, hint, destaque = false }: StatTileProps) {
   return (
     <div
-      className={`rounded-lg border bg-card p-4 shadow-sm ${
+      className={`rounded-lg border bg-card p-3 shadow-sm sm:p-4 ${
         destaque ? 'border-primary/40' : ''
       }`}
     >
       <p className="text-sm text-muted-foreground">{label}</p>
       <p
         className={`mt-1 font-semibold tabular-nums ${
-          destaque ? 'text-3xl' : 'text-2xl'
+          destaque ? 'text-2xl sm:text-3xl' : 'text-xl sm:text-2xl'
         }`}
       >
         {value}

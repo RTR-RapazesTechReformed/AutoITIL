@@ -199,8 +199,13 @@ function TicketDetailModal({ ticket, open, onOpenChange, onEnriched, onRevised, 
           TicketCard pai — o Radix DialogPortal move o DOM pra fora do card,
           mas não tira o componente da árvore React, então eventos
           sintéticos de pointer continuam borbulhando pro handler de drag
-          (mesmo truque que o ícone de expandir usa em TicketCard.tsx). */}
-      <DialogContent onPointerDown={(e) => e.stopPropagation()}>
+          (mesmo truque que o ícone de expandir usa em TicketCard.tsx).
+          onTouchStart cobre o TouchSensor (arraste por toque), que escuta
+          touchstart e não pointerdown. */}
+      <DialogContent
+        onPointerDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+      >
         <DialogHeader>
           <div className="flex items-center justify-between gap-2 pr-6">
             <DialogTitle>{ticket.codigo}</DialogTitle>

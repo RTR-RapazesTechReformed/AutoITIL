@@ -19,7 +19,12 @@ function ToastViewport() {
 
   return (
     <div
-      className="fixed top-4 right-4 z-50 flex flex-col-reverse gap-2"
+      // left-4 no celular: sem limite à esquerda, uma mensagem longa saía
+      // pela borda da tela. top-16 abaixo de lg: o toast aparece logo abaixo
+      // da barra superior do app em vez de cobrir o botão de menu.
+      // pointer-events-none no contêiner (e auto em cada toast) pra faixa
+      // invisível não bloquear toques no conteúdo ao lado.
+      className="pointer-events-none fixed top-16 right-4 left-4 z-50 flex flex-col-reverse items-end gap-2 sm:left-auto lg:top-4"
       role="status"
       aria-live="polite"
       aria-atomic="true"
@@ -28,7 +33,7 @@ function ToastViewport() {
         <div
           key={toast.id}
           className={cn(
-            'flex items-center gap-2 rounded-2xl border bg-card px-4 py-3 text-sm shadow-sm',
+            'pointer-events-auto flex items-center gap-2 rounded-2xl border bg-card px-4 py-3 text-sm shadow-sm',
             toast.variant === 'error' && 'border-destructive/30 bg-destructive/5 text-destructive',
           )}
         >

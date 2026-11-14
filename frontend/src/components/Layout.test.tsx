@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import Layout from './Layout'
@@ -90,6 +90,26 @@ describe('Layout', () => {
 
     const content = screen.getByText('conteúdo operação')
     expect(content.parentElement).toHaveClass('mx-auto', 'max-w-5xl')
+  })
+
+  // Responsividade: abaixo de lg a barra lateral some (via CSS) e a navegação
+  // passa a morar numa gaveta aberta pelo botão da barra superior. O jsdom
+  // não aplica CSS, então aqui só dá pra cobrir o comportamento: a gaveta
+  // abre com os links e fecha sozinha ao navegar.
+  it('abre a gaveta de navegação pelo botão de menu e fecha ao escolher uma tela', async () => {
+    renderAt('/operacao')
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Abrir menu' }))
+
+    const gaveta = within(screen.getByRole('dialog'))
+    expect(gaveta.getByRole('link', { name: 'Operação' })).toHaveAttribute('aria-current', 'page')
+
+    await userEvent.click(gaveta.getByRole('link', { name: 'Kanban' }))
+
+    expect(screen.getByText('conteúdo kanban')).toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
   it('"Sair" limpa o token salvo e volta pra tela de login', async () => {

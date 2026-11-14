@@ -57,7 +57,7 @@ function Dropzone({ accept, hint, disabled, onFileSelected }: Props) {
         // --primary só passando 4.66:1 em branco puro, qualquer superfície
         // um pouco mais escura derrubava o texto do link abaixo de 4.5:1.
         // O estado de arraste é só borda + ring, sem trocar o fundo.
-        'flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed bg-card p-10 text-center transition-colors',
+        'flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed bg-card p-6 text-center sm:p-10 transition-colors',
         isDragging ? 'border-primary ring-2 ring-primary/20' : 'border-border',
         disabled && 'pointer-events-none opacity-60',
       )}

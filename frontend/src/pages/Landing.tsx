@@ -36,14 +36,14 @@ function Landing() {
         <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
           <span className="font-semibold">AutoITIL</span>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Button asChild variant="outline" size="sm">
+            <ThemeToggle className="size-10 sm:size-8" />
+            <Button asChild variant="outline" size="sm" className="h-9 px-3 sm:h-7 sm:px-2.5">
               <Link to="/ingestao">Entrar no app</Link>
             </Button>
           </div>
         </header>
 
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 md:grid-cols-2 md:items-center md:py-24">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-2 md:items-center md:py-24">
           <div className="relative z-10 max-w-lg">
             <h1 className="text-3xl leading-tight font-bold text-balance md:text-5xl">
               Triagem de tickets de TI, automática e rastreável
@@ -82,7 +82,7 @@ function Landing() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-16">
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:py-16">
         <div className="grid gap-4 sm:grid-cols-3">
           {FEATURES.map((feature) => (
             <div key={feature.title} className="rounded-2xl border bg-card p-5 shadow-sm">
