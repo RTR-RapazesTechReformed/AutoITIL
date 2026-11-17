@@ -9,6 +9,9 @@ from app.utils.text_normalizer import (
     TextNormalizer,
 )
 
+FALLBACK_MIN_AVG_LENGTH = 20
+FALLBACK_CONFIDENCE = 0.4
+
 
 class SemanticMapper:
     def __init__(self):
@@ -176,7 +179,42 @@ class SemanticMapper:
             used_fields.add(field)
             used_columns.add(column)
 
+        self._fallback_descricao(dataframe, detected, used_columns)
+
         return detected
+
+    def _fallback_descricao(self, dataframe, detected, used_columns):
+        """Sem alias reconhecível, usa a coluna de texto mais longa como descrição."""
+        if "descricao" not in detected or detected["descricao"]["column"]:
+            return
+
+        best_column = None
+        best_length = FALLBACK_MIN_AVG_LENGTH
+
+        for column in dataframe.columns:
+            if column in used_columns:
+                continue
+
+            values = dataframe[column].dropna().head(20)
+
+            if values.empty or pd.api.types.is_numeric_dtype(values):
+                continue
+
+            texts = [str(value).strip() for value in values]
+
+            if sum(self._looks_like_date(text) for text in texts) / len(texts) > 0.5:
+                continue
+
+            average = sum(len(text) for text in texts) / len(texts)
+
+            if average >= best_length:
+                best_column, best_length = column, average
+
+        if best_column is not None:
+            detected["descricao"] = {
+                "column": best_column,
+                "confidence": FALLBACK_CONFIDENCE,
+            }
 
     def suggest(self, dataframe):
         suggestions = []
